@@ -79,6 +79,7 @@ void main()
 
 		if (debugOn)
 		{
+
 			Hash weaponHash;
 			WEAPON::GET_CURRENT_PED_WEAPON(player, &weaponHash, 0, 0, 0);
 			if (weaponHash != GAMEPLAY::GET_HASH_KEY("WEAPON_UNARMED")) {
@@ -90,33 +91,17 @@ void main()
 						showSubtitle(to_string(entityPos(e)));
 					}
 
-					//debug(PED::_0xB655DB7582AEC805(e));
 					debug((int)ENTITY::GET_ENTITY_MODEL(e));
 				}
 				else
 				{
-					//RaycastResult ray = raycastCrosshair(500);
-					//if (ray.hitEntity) 
-					//{
-					//	debug((int)ENTITY::GET_ENTITY_MODEL((int)ray.hitEntity));
-					//}
-					//else
-					//{
-					//	debug(to_string(ray.hitPos));
-					//}
-					//if (IsKeyJustUp(VK_KEY_Z))
-					//{
-					//	log(ray.hitPos);
-					//	log(to_string(ENTITY::GET_ENTITY_HEADING(player)));
-					//}
-					//if (IsKeyJustUp(VK_F3))
-					//{
-					//	//new CampingSite(ray.hitPos, 25, 8, CampVariant::Campfire);
-					//}
 				}
 			}
 			else
 			{
+				/*CONTROLS::_SET_CONTROL_NORMAL(0, GAMEPLAY::GET_HASH_KEY("INPUT_INTERACT_LOCKON"), 1);
+				CONTROLS::_SET_CONTROL_NORMAL(0, GAMEPLAY::GET_HASH_KEY("INPUT_ATTACK"), 1);*/
+
 				Entity targetEntity;
 				if (PLAYER::GET_PLAYER_TARGET_ENTITY(PLAYER::PLAYER_ID(), &targetEntity))
 				{
@@ -124,24 +109,9 @@ void main()
 						log(to_string(ENTITY::GET_ENTITY_HEADING(targetEntity)));
 						log(to_string((int)ENTITY::GET_ENTITY_MODEL(targetEntity)));
 					}
-					//debug((int)ENTITY::GET_ENTITY_MODEL(targetEntity));
-					//debug(PED::GET_PED_TYPE(targetEntity));
-					//debug(doesPedHaveSidearm(targetEntity));
-					//debug(PED::GET_RELATIONSHIP_BETWEEN_PEDS(player, targetEntity));
-					//debug(AI::IS_PED_RUNNING(targetEntity));
-					//debug("Target");
 				}
 				else
 				{
-					//pair<Vector3, float> closestRoad = getClosestVehicleNode(playerPos());
-					//if (!closestRoad.first)
-					//{
-					//	debug("none");
-					//}
-					//else
-					//{
-					//	debug(distance(playerPos(), closestRoad.first));
-					//}
 				}
 			}
 
@@ -213,6 +183,21 @@ void main()
 			if (IsKeyJustUp(VK_KEY_Z))
 			{
 				//AUDIO::PLAY_SOUND_FRONTEND("HUD_DRAW", "HUD_DUEL_SOUNDSET", true, 0);
+
+				Ped ped = createPed("g_m_m_uniduster_01", playerPos() + getForwardVector(player) * 5, 180);
+				PED::SET_BLOCKING_OF_NON_TEMPORARY_EVENTS(ped, true);
+				Ped ped2 = createPed("A_M_M_BynRoughTravellers_01", playerPos() + getForwardVector(player) * 10, 180);
+
+				WAIT(1000);
+
+				Hash opponentSidearmWeapon;
+				WEAPON::GET_CURRENT_PED_WEAPON(ped, &opponentSidearmWeapon, true, 2, false);
+				WEAPON::SET_AMMO_IN_CLIP(ped, opponentSidearmWeapon, WEAPON::GET_MAX_AMMO_IN_CLIP(ped, opponentSidearmWeapon, true));
+				WEAPON::SET_CURRENT_PED_WEAPON(ped, opponentSidearmWeapon, true, 0, 0, 0);
+
+
+				AI::TASK_SHOOT_AT_ENTITY(ped, ped2, -1, -957453492, 0);
+
 			}
 
 			if (IsKeyJustUp(VK_F3))
