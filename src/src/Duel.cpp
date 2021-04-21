@@ -261,12 +261,15 @@ void Duel::enterDrawMode()
 
 void Duel::onDrawModeEntered()
 {
-	Vector3 offset = getForwardVector(player) * -1.0 + getUpVector(player) * 0.1 + getRightVector(player) * 0.8f;
-	duelCamera = new GameCamera(entityPos(player) + getForwardVector(player) * 500, 70);
-	duelCamera->attachTo(player, offset, false);
-	duelCamera->pointAt(challengedPed);
-	GameCamera::setScriptCamsRendering(true);
-	UI::DISPLAY_HUD(false);
+	if (ScriptSettings::get("EnableDuelCamera"))
+	{
+		Vector3 offset = getForwardVector(player) * -1.0 + getUpVector(player) * 0.1 + getRightVector(player) * 0.8f;
+		duelCamera = new GameCamera(entityPos(player) + getForwardVector(player) * 500, 70);
+		duelCamera->attachTo(player, offset, false);
+		duelCamera->pointAt(challengedPed);
+		GameCamera::setScriptCamsRendering(true);
+		UI::DISPLAY_HUD(false);
+	}
 
 	WAIT(3000);
 

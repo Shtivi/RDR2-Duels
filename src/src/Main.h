@@ -35,6 +35,7 @@ using namespace std;
 #include "../../inc/MinHook/MinHook.h"
 #pragma comment(lib, "../../inc/MinHook/libMinHook.x64.lib")
 
+#include "ScriptSettings.h"
 #include "StringUtils.h"
 #include "VectorUtils.h"
 #include "Logger.h"

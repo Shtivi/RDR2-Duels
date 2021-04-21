@@ -20,6 +20,12 @@ DuelsEngine* duels;
 void Initialize()
 {
 	player = PLAYER::PLAYER_PED_ID();
+	DECORATOR::DECOR_REGISTER("SH_DUELS_dueled", 3);
+	initializeLogger();
+	log("Duels - 1.0.0 - By Shtivi");
+	ScriptSettings::load("Duels.ini", new SettingsMap {
+		{"EnableDuelCamera", 1}
+	});
 	duels = new DuelsEngine();
 }
 
@@ -28,9 +34,10 @@ void main()
 	WAIT(500);
 	Initialize();
 	
-	
 	while (true)
 	{
+		debug(ScriptSettings::get("EnableDuelCamera"));
+
 		player = PLAYER::PLAYER_PED_ID();
 		try
 		{
@@ -54,7 +61,8 @@ void main()
 			}
 			catch (const exception& e)
 			{
-				log(e.what());
+				showSubtitle(e.what());
+				//log(e.what());
 			}
 		}
 

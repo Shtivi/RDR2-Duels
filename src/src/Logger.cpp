@@ -3,7 +3,7 @@
 #include <fstream>
 #include <string>
 
-const char* const LOG_FILE = "Contracts.log";
+const char* const LOG_FILE = "Duels.log";
 
 ofstream file;
 
