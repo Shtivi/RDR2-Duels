@@ -43,6 +43,11 @@ void Prompt::setControl(Hash control)
 	UI::_0xB5352B7494A08258(this->handle, control); // _UIPROMPT_SET_CONTROL_ACTION
 }
 
+Hash Prompt::getControl()
+{
+	return control;
+}
+
 void Prompt::setTargetEntity(Entity target)
 {
 	this->targetEntity = target;
@@ -98,6 +103,9 @@ void Prompt::setMode(PromptMode mode)
 	case SemiHold:
 		UI::_0x94073D5CA3F16B7B(handle, 1); // _UIPROMPT_SET_HOLD_MODE
 		break;
+	case Mash:
+		UI::_0x32DF729D8BD3C1C6(handle, 1, 0, 0, 0); // _UIPROMPT_SET_MASH_MANUAL_MODE
+		break;
 	}
 }
 
@@ -107,9 +115,6 @@ bool Prompt::isActivatedByPlayer()
 	{
 		return false;
 	}
-
-	//return CONTROLS::IS_DISABLED_CONTROL_JUST_RELEASED(0, this->control);
-	//return CONTROLS::IS_CONTROL_JUST_PRESSED(0, this->control);
 
 	switch (mode)
 	{
@@ -132,6 +137,8 @@ bool Prompt::isActivatedByPlayer()
 		{
 			semiHoldShouldReturn = false;
 		}
+	case Mash:
+		return UI::_0x845CE958416DC473(handle); // _UIPROMPT_HAS_MASH_MODE_COMPLETED
 	}
 }
 
@@ -174,4 +181,36 @@ void Prompt::update()
 		UI::_0x8A0FB4D03A630D21(this->handle, false); // _UIPROMPT_SET_ENABLED
 		UI::_0x71215ACCFDE075EE(this->handle, false); // _UIPROMPT_SET_VISIBLE
 	}
+}
+
+float Prompt::getMashModeProgress()
+{
+	return UI::_0x8A9585293863B8A5(handle); // _UIPROMPT_GET_MASH_MODE_PROGRESS
+}
+
+void Prompt::setMashModeIncreasePerPress(float rate)
+{
+	UI::_0xA0D1D79C6036A855(handle, rate); //_UIPROMPT_SET_MASH_MANUAL_MODE_INCREASE_PER_PRESS
+
+}
+
+void Prompt::setMashModeGrowthSpeed(float speed)
+{
+	UI::_0x56DBB26F98582C29(handle, speed); //_UIPROMPT_SET_MASH_MANUAL_MODE_PRESSED_GROWTH_SPEED
+
+}
+
+void Prompt::setMashModeDecaySpeed(float speed)
+{
+	UI::_0x7D393C247FB9B431(handle, speed); // _UIPROMPT_SET_MASH_MANUAL_MODE_DECAY_SPEED
+}
+
+void Prompt::setUrgentPulsating(bool toggle)
+{
+	UI::_0xC5F428EE08FA7F2C(handle, toggle); // _UIPROMPT_SET_URGENT_PULSING_ENABLED
+}
+
+bool Prompt::isUrgentPulsating()
+{
+	return UI::_0x1FBA0DABECDDB52B(handle); // _UIPROMPT_GET_URGENT_PULSING_ENABLED
 }

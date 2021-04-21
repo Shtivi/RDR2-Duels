@@ -78,3 +78,9 @@ Vector3 getPedLastWeaponImpactCoord(Ped ped)
 	}
 	return output;
 }
+
+bool doesPedHaveSidearm(Ped ped)
+{
+	//return WEAPON::GET_PED_AMMO_BY_TYPE(ped, WEAPON::_0x5C2EA6C44F515F34(WeaponHash::RevolverCattleman))
+	return WEAPON::GET_PED_AMMO_BY_TYPE(ped, AmmoType::AmmoRevolver) || WEAPON::GET_PED_AMMO_BY_TYPE(ped, AmmoType::AmmoPistol);
+}

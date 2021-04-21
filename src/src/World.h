@@ -1,9 +1,12 @@
 #pragma once
 
+typedef pair<Vector3, float> Position;
+
 #include "Blips.h"
 #include "Weapons.h"
 #include "Vehicles.h"
 #include "Rope.h"
+#include "Player.h"
 
 typedef struct RaycastResult
 {
@@ -90,7 +93,7 @@ bool isPlayerResting();
 void setPlayerCoreValue(AttributeCores core, int value);
 int getPlayerCoreValue(AttributeCores core);
 void addToPlayerCore(AttributeCores core, int amount);
-
+Position getClosestVehicleNode(Vector3 around, bool flipDirection = false);
 
 #include "ScenarioPoint.h"
 #include "Place.h"

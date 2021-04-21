@@ -4,7 +4,8 @@ enum PromptMode
 {
 	Standard,
 	Hold,
-	SemiHold
+	SemiHold,
+	Mash
 };
 
 class Prompt
@@ -30,9 +31,16 @@ class Prompt
 
 		void setText(const char* text);
 		void setControl(Hash control);
+		Hash getControl();
 		void setTargetEntity(Entity entity);
 		void setPriority(int priority);
 		void setMode(PromptMode mode);
+		float getMashModeProgress();
+		void setMashModeIncreasePerPress(float rate);
+		void setMashModeGrowthSpeed(float speed);
+		void setMashModeDecaySpeed(float speed);
+		void setUrgentPulsating(bool toggle);
+		bool isUrgentPulsating();
 		void setIsEnabled(bool enabled);
 		bool isControlPressed();
 		void setGroup(int group);

@@ -425,3 +425,15 @@ void addToPlayerCore(AttributeCores core, int amount)
 {
 	setPlayerCoreValue(core, getPlayerCoreValue(core) + amount);
 }
+
+Position getClosestVehicleNode(Vector3 around, bool flipDirection)
+{
+	Vector3 out;
+	float heading;
+	if (PATHFIND::GET_CLOSEST_VEHICLE_NODE_WITH_HEADING(around.x, around.y, around.z, &out, &heading, 1, 3, 0))
+	{
+		return make_pair(out, heading);
+	}
+
+	return make_pair(toVector3(0, 0, 0), 0);
+}

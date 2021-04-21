@@ -17,8 +17,6 @@ bool invincible = false;
 
 DuelsEngine* duels;
 
-Ped ped = 0;
-
 void Initialize()
 {
 	player = PLAYER::PLAYER_PED_ID();
@@ -28,13 +26,33 @@ void Initialize()
 void main()
 {
 	WAIT(500);
-
 	Initialize();
+	
+	
+	//UI::_0xCD1BDFF15EFA79F5(mashP->handle, 1, 0.8, 0); //_UIPROMPT_SET_MASH_WITH_RESISTANCE_MODE
+	//UI::_0xF957A1654C6322FE(mashP->handle, 0); //_UIPROMPT_SET_BEAT_MODE
+	//UI::_0x5F6503D9CD2754EB(mashP->handle, 0.5, 1, 0); //_UIPROMPT_SET_TARGET_MODE
+	//UI::_0x1473D3AF51D54276(mashP->handle, 0); // _UIPROMPT_SET_PRESSED_TIMED_MODE
+	//UI::_0x1473D3AF51D54276(mashP->handle, 0); // _UIPROMPT_SET_PRESSED_TIMED_MODE
+	//UI::_0x74C7D7B72ED0D3CF(mashP->handle, 10); //_UIPROMPT_SET_STANDARDIZED_HOLD_MODE
+	//UI::_0x7B66E89312727274(mashP->handle); //_UIPROMPT_SET_HOLD_INDEFINITELY_MODE
+
+	//UI::_0xDF6423BF071C7F71(mashP->handle, 10); // _UIPROMPT_SET_MASH_MODE
+	//UI::_0xF4A5C4509BF923B1(mashP->handle, 1);
+
+	//UI::_0x32DF729D8BD3C1C6(mashP->handle, 1, 0, 0, 0); // _UIPROMPT_SET_MASH_MANUAL_MODE
+	//UI::_0xA0D1D79C6036A855(mashP->handle, 1); //_UIPROMPT_SET_MASH_MANUAL_MODE_INCREASE_PER_PRESS
+	//UI::_0x56DBB26F98582C29(mashP->handle, 0.015); //_UIPROMPT_SET_MASH_MANUAL_MODE_PRESSED_GROWTH_SPEED
+	//UI::_0x7D393C247FB9B431(mashP->handle, 0); // _UIPROMPT_SET_MASH_MANUAL_MODE_DECAY_SPEED
+	
 	while (true)
 	{
+		//debug((float)UI::_0x8A9585293863B8A5(mashP->handle));
+
 		player = PLAYER::PLAYER_PED_ID();
 		try
 		{
+			updateUI();
 			duels->update();
 		}
 		catch (...)
@@ -61,16 +79,6 @@ void main()
 
 		if (debugOn)
 		{
-
-			if (ped) {
-				int prog = AI::GET_SEQUENCE_PROGRESS(ped);
-				debug(prog);
-				//if (prog == 1) 
-				//{
-				//	giveWeaponToPed(ped, WeaponHash::RevolverCattleman, 90, true);
-				//}
-			}
-
 			Hash weaponHash;
 			WEAPON::GET_CURRENT_PED_WEAPON(player, &weaponHash, 0, 0, 0);
 			if (weaponHash != GAMEPLAY::GET_HASH_KEY("WEAPON_UNARMED")) {
@@ -118,6 +126,22 @@ void main()
 					}
 					//debug((int)ENTITY::GET_ENTITY_MODEL(targetEntity));
 					//debug(PED::GET_PED_TYPE(targetEntity));
+					//debug(doesPedHaveSidearm(targetEntity));
+					//debug(PED::GET_RELATIONSHIP_BETWEEN_PEDS(player, targetEntity));
+					//debug(AI::IS_PED_RUNNING(targetEntity));
+					//debug("Target");
+				}
+				else
+				{
+					//pair<Vector3, float> closestRoad = getClosestVehicleNode(playerPos());
+					//if (!closestRoad.first)
+					//{
+					//	debug("none");
+					//}
+					//else
+					//{
+					//	debug(distance(playerPos(), closestRoad.first));
+					//}
 				}
 			}
 
@@ -134,35 +158,42 @@ void main()
 
 			if (IsKeyJustUp(VK_KEY_X))
 			{
-				ped = createPed("g_m_m_uniduster_01", playerPos() + getForwardVector(player) * 5, 180);
+				Ped ped = createPed("g_m_m_uniduster_01", playerPos() + getForwardVector(player) * 5, 180);
+
+
+
+				//PLAYER::_0xBBA140062B15A8AC(PLAYER::PLAYER_ID());
 				//Ped ped2 = createPed("g_m_m_uniduster_01", playerPos() + getForwardVector(player) * 10);
-				PED::SET_BLOCKING_OF_NON_TEMPORARY_EVENTS(ped, true);
+				//PED::SET_BLOCKING_OF_NON_TEMPORARY_EVENTS(ped, true);
 				//PED::SET_BLOCKING_OF_NON_TEMPORARY_EVENTS(ped2, true);
 
-				WAIT(1000);
 
-				//pedEquipBestWeapon(ped);
-				//pedEquipBestWeapon(ped2);
+				////pedEquipBestWeapon(ped);
+				////pedEquipBestWeapon(ped2);
 
-				//AI::_0x5D5B0D5BC3626E5A(ped, WEAPON::GET_BEST_PED_WEAPON(ped, 0, 0), WEAPON::GET_BEST_PED_WEAPON(ped2, 0, 0), ped2, 0.22f, 0, 0, 0, 0, 90, 1);
+				////AI::_0x5D5B0D5BC3626E5A(ped, WEAPON::GET_BEST_PED_WEAPON(ped, 0, 0), WEAPON::GET_BEST_PED_WEAPON(ped2, 0, 0), ped2, 0.22f, 0, 0, 0, 0, 90, 1);
 
-				//playAnimation(ped, "idle_a", "mini_duel@challenger@rc@rcal@rc3_ig1", 4000);
-				Vector3 shootAt = entityPos(ped) + getForwardVector(ped) * 50;
-				WEAPON::REMOVE_ALL_PED_WEAPONS(ped, 1, 1);
-				WAIT(500);
-				giveWeaponToPed(ped, WeaponHash::RevolverCattleman, 90, true);
-				Object seq;
-				AI::OPEN_SEQUENCE_TASK(&seq);
-				playAnimation(0, "enter_npc", "mini_duel@base", 4000);
-				//playAnimation(0, "idle_c_npc", "mini_duel@base", 2000);
-				//playAnimation(0, "hard_c_draw_npc", "mini_duel@base", 2000);
-				//playAnimation(0, "hard_c_fire_npc", "mini_duel@base", -1);
-				AI::TASK_SHOOT_AT_COORD(0, shootAt.x, shootAt.y, shootAt.z, 5000, 1566631136, 0);
-				//playAnimation(0, "enter", "mini_duel@challenger@rc@rcal@rc3_ig1", 2000);
-				//playAnimation(0, "idle_a", "mini_duel@challenger@rc@rcal@rc3_ig1", 2000);
-				//playAnimation(0, "fast_draw_a", "mini_duel@challenger@rc@rcal@rc3_ig1", 2000);
-				AI::CLOSE_SEQUENCE_TASK(seq);
-				AI::TASK_PERFORM_SEQUENCE(ped, seq);
+				////playAnimation(ped, "idle_a", "mini_duel@challenger@rc@rcal@rc3_ig1", 4000);
+				//Vector3 shootAt = entityPos(ped) + getForwardVector(ped) * 50;
+				//WEAPON::REMOVE_ALL_PED_WEAPONS(ped, 1, 1);
+				//WAIT(500);
+				//giveWeaponToPed(ped, WeaponHash::RevolverCattleman, 90, true);
+				
+				//Object seq;
+				//AI::OPEN_SEQUENCE_TASK(&seq);
+				////playAnimation(0, "enter_npc", "mini_duel@base", 0);
+				//WAIT(2000);
+				////playAmbientSpeech(ped, "GENERIC_INSULT_HIGH_MALE");
+				//playAnimation(0, "idle_a", "mini_duel@player@base", -1, 2, 8, 0);
+				//playAnimation(0, "slow_draw_sweep_up", "mini_duel@player@base", -1, 2, 8, 1);
+				////playAnimation(0, "hard_c_draw_npc", "mini_duel@base", 2000);
+				////playAnimation(0, "hard_c_fire_npc", "mini_duel@base", -1);
+				////AI::TASK_SHOOT_AT_COORD(0, shootAt.x, shootAt.y, shootAt.z, 5000, 1566631136, 0);
+				//////playAnimation(0, "enter", "mini_duel@challenger@rc@rcal@rc3_ig1", 2000);
+				//////playAnimation(0, "idle_a", "mini_duel@challenger@rc@rcal@rc3_ig1", 2000);
+				//////playAnimation(0, "fast_draw_a", "mini_duel@challenger@rc@rcal@rc3_ig1", 2000);
+				//AI::CLOSE_SEQUENCE_TASK(seq);
+				//AI::TASK_PERFORM_SEQUENCE(ped, seq);
 			}
 
 			if (IsKeyJustUp(VK_F1))
@@ -181,14 +212,18 @@ void main()
 
 			if (IsKeyJustUp(VK_KEY_Z))
 			{
+				//AUDIO::PLAY_SOUND_FRONTEND("HUD_DRAW", "HUD_DUEL_SOUNDSET", true, 0);
 			}
 
 			if (IsKeyJustUp(VK_F3))
 			{
+				AI::CLEAR_PED_TASKS(player, 1, 1);
 			}
 
 			if (IsKeyJustUp(VK_KEY_K))
 			{
+
+				//PLAYER::_0xBBA140062B15A8AC(PLAYER::PLAYER_ID());
 
 			}
 		}
