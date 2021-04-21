@@ -23,6 +23,10 @@ private:
 	Ped challengedPed;
 	Blip positionBlip;
 	Prompt* drawPrompt;
+	Stopwatch drawTimer;
+	int opponentDrawTime;
+	GameCamera* duelCamera;
+	int duelShockingEvent;
 
 public:
 	Duel(Ped challengedPed, Position pos1, Position pos2);

@@ -1,7 +1,6 @@
 #include "Main.h"
 
-Stopwatch drawTimer;
-int opponentDrawTime = 5;
+
 
 Duel::Duel(Ped challengedPed, Position pos1, Position pos2)
 {
@@ -10,6 +9,9 @@ Duel::Duel(Ped challengedPed, Position pos1, Position pos2)
 	this->pos2 = pos2;
 	this->stage = DuelStage::Challenged;
 	this->positionBlip = NULL;
+	this->opponentDrawTime = 5;
+	this->duelCamera = NULL;
+	this->duelShockingEvent = 0;
 
 	drawPrompt = new Prompt("Draw", GAMEPLAY::GET_HASH_KEY("INPUT_ATTACK"), PromptMode::Mash);
 	drawPrompt->setMashModeIncreasePerPress(1.1);
@@ -70,9 +72,6 @@ void Duel::update()
 				if (!drawTimer.isStarted())
 				{
 					onDrawModeEntered();
-
-					opponentDrawTime = rndInt(4, 7);
-					drawTimer.start();
 				}
 
 				if (drawTimer.getElapsedSeconds() == opponentDrawTime)
@@ -96,7 +95,8 @@ void Duel::update()
 				if (drawPrompt->isActivatedByPlayer())
 				{
 					drawPrompt->hide();
-					
+					GameCamera::setScriptCamsRendering(false, true, 500);
+					UI::DISPLAY_HUD(true);
 					AI::CLEAR_PED_TASKS(player, 1, 1);
 					Hash weaponToEquip = NULL;
 					WEAPON::GET_CURRENT_PED_WEAPON(player, &weaponToEquip, 0, 2, 0);
@@ -109,7 +109,7 @@ void Duel::update()
 						CONTROLS::_SET_CONTROL_NORMAL(0, GAMEPLAY::GET_HASH_KEY("INPUT_AIM"), 1);
 						PLAYER::SET_PLAYER_FORCED_AIM(PLAYER::PLAYER_ID(), 1, challengedPed, -1, 1);
 					}
-					//PLAYER::_0xBBA140062B15A8AC(PLAYER::PLAYER_ID());
+					//PLAYER::_0xBBA140062B15A8AC(PLAYER::PLAYER_ID()); // dead eye
 					setStage(DuelStage::Combat);
 				}
 			}
@@ -233,6 +233,8 @@ bool Duel::isPositioningCompleted()
 
 void Duel::enterDrawMode()
 {
+	duelShockingEvent = DECISIONEVENT::ADD_SHOCKING_EVENT_FOR_ENTITY(2507051957, challengedPed, 0, 30, 35, -1, 20, 1127481344, 0, 0, -1, -1);
+
 	AI::CLEAR_PED_TASKS(player, 0, 0);
 	Object seq1;
 	AI::OPEN_SEQUENCE_TASK(&seq1);
@@ -259,8 +261,18 @@ void Duel::enterDrawMode()
 
 void Duel::onDrawModeEntered()
 {
+	Vector3 offset = getForwardVector(player) * -1.0 + getUpVector(player) * 0.1 + getRightVector(player) * 0.8f;
+	duelCamera = new GameCamera(entityPos(player) + getForwardVector(player) * 500, 70);
+	duelCamera->attachTo(player, offset, false);
+	duelCamera->pointAt(challengedPed);
+	GameCamera::setScriptCamsRendering(true);
+	UI::DISPLAY_HUD(false);
+
+	WAIT(3000);
+
 	AUDIO::PLAY_SOUND_FRONTEND("HUD_DRAW", "HUD_DUEL_SOUNDSET", true, 0);
-	//showHelpText("Hold ~INPUT_AIM~ and ~INPUT_ATTACK~ to draw.");
+	opponentDrawTime = rndInt(4, 7);
+	drawTimer.start();
 }
 
 void Duel::onPlayerBailed()
@@ -280,6 +292,5 @@ void Duel::cleanup()
 	deleteBlipSafe(&positionBlip);
 	drawPrompt->hide();
 	PED::SET_BLOCKING_OF_NON_TEMPORARY_EVENTS(challengedPed, false);
-
-
+	GameCamera::setScriptCamsRendering(false, true, 500);
 }

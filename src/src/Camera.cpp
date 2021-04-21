@@ -17,7 +17,7 @@ GameCamera* GameCamera::defaultCamera()
 	if (!_default)
 	{
 		Vector3 offset = getForwardVector(player) * -3 + getUpVector(player) * -0.3 + getRightVector(player) * 0.5f;
-		_default = new GameCamera(entityPos(player), 25);
+		_default = new GameCamera(entityPos(player), 60);
 		_default->attachTo(player, offset);
 	}
 
