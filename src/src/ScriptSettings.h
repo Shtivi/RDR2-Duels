@@ -10,6 +10,7 @@ private:
 public:
 	static void load(const char* filename, SettingsMap* defaults);
 	static int get(const char* key);
+	static bool getBool(const char* key);
 
 private:
 	static void handleLine(string* line);

@@ -24,7 +24,9 @@ void Initialize()
 	initializeLogger();
 	log("Duels - 1.0.0 - By Shtivi");
 	ScriptSettings::load("Duels.ini", new SettingsMap {
-		{"EnableDuelCamera", 1}
+		{"EnableDuelCamera", 1},
+		{"AimingAssist", 0},
+		{"DisableHonorLoss", 0}
 	});
 	duels = new DuelsEngine();
 }

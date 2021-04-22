@@ -50,6 +50,13 @@ int ScriptSettings::get(const char* key)
 	return (*settings)[key];
 }
 
+bool ScriptSettings::getBool(const char* key)
+{
+	const int value = get(key);
+	return value != -1 && value != 0;
+}
+	
+
 void ScriptSettings::handleLine(string* line)
 {
 	if (line->empty())

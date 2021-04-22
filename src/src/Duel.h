@@ -46,5 +46,5 @@ private:
 	void onDrawModeEntered();
 	void onPlayerBailed();
 	void onPlayerDirtyMove();
-
+	void onPlayerDrew();
 };

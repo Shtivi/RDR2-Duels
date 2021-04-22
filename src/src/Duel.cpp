@@ -95,22 +95,7 @@ void Duel::update()
 				if (drawPrompt->isActivatedByPlayer())
 				{
 					drawPrompt->hide();
-					GameCamera::setScriptCamsRendering(false, true, 500);
-					UI::DISPLAY_HUD(true);
-					AI::CLEAR_PED_TASKS(player, 1, 1);
-					Hash weaponToEquip = NULL;
-					WEAPON::GET_CURRENT_PED_WEAPON(player, &weaponToEquip, 0, 2, 0);
-					WEAPON::SET_CURRENT_PED_WEAPON(player, weaponToEquip, true, 0, false, false);
-					WAIT(500);
-
-					while (!PLAYER::IS_PLAYER_FREE_AIMING(PLAYER::PLAYER_ID()))
-					{
-						WAIT(0);
-						CONTROLS::_SET_CONTROL_NORMAL(0, GAMEPLAY::GET_HASH_KEY("INPUT_AIM"), 1);
-						PLAYER::SET_PLAYER_FORCED_AIM(PLAYER::PLAYER_ID(), 1, challengedPed, -1, 1);
-					}
-					//PLAYER::_0xBBA140062B15A8AC(PLAYER::PLAYER_ID()); // dead eye
-					setStage(DuelStage::Combat);
+					onPlayerDrew();
 				}
 			}
 			break;
@@ -185,19 +170,20 @@ void Duel::generateDuelPosition()
 	pos1 = getClosestVehicleNode(playerCoords);
 	pos2 = getClosestVehicleNode(playerCoords + getForwardVector(player) * 12, true);
 
-	if (distance(pos1.first, pos2.first) > 12 || distance(pos1.first, playerCoords) > 20)
+	if (distance(pos1.first, pos2.first) > 14 || distance(pos1.first, playerCoords) > 20)
 	{
 		float playerHeading = ENTITY::GET_ENTITY_HEADING(player);
 		pos1 = make_pair(playerCoords, playerHeading);
+		pos2 = make_pair(opponentCoords, playerHeading - 180);
 		
-		if (distance(player, challengedPed) < 8)
-		{
-			pos2 = make_pair(opponentCoords, playerHeading - 180);
-		}
-		else
-		{
-			pos2 = make_pair(entityPos(challengedPed), playerHeading - 180);
-		}
+		//float distanceToOpponent = distance(player, challengedPed);
+		//if (distanceToOpponent >= 8 && distanceToOpponent < 15)
+		//{
+		//}
+		//else
+		//{
+		//	pos2 = make_pair(entityPos(challengedPed), playerHeading - 180);
+		//}
 	}
 }
 
@@ -261,7 +247,7 @@ void Duel::enterDrawMode()
 
 void Duel::onDrawModeEntered()
 {
-	if (ScriptSettings::get("EnableDuelCamera"))
+	if (ScriptSettings::getBool("EnableDuelCamera"))
 	{
 		Vector3 offset = getForwardVector(player) * -1.0 + getUpVector(player) * 0.1 + getRightVector(player) * 0.8f;
 		duelCamera = new GameCamera(entityPos(player) + getForwardVector(player) * 500, 70);
@@ -271,11 +257,39 @@ void Duel::onDrawModeEntered()
 		UI::DISPLAY_HUD(false);
 	}
 
+	if (ScriptSettings::getBool("DisableHonorLoss"))
+	{
+		DECORATOR::DECOR_SET_INT(challengedPed, "honor_override", 0);
+	}
+
 	WAIT(3000);
 
 	AUDIO::PLAY_SOUND_FRONTEND("HUD_DRAW", "HUD_DUEL_SOUNDSET", true, 0);
 	opponentDrawTime = rndInt(4, 7);
 	drawTimer.start();
+}
+
+void Duel::onPlayerDrew()
+{
+	GameCamera::setScriptCamsRendering(false, true, 500);
+	UI::DISPLAY_HUD(true);
+	AI::CLEAR_PED_TASKS(player, 1, 1);
+	Hash weaponToEquip = NULL;
+	WEAPON::GET_CURRENT_PED_WEAPON(player, &weaponToEquip, 0, 2, 0);
+	WEAPON::SET_CURRENT_PED_WEAPON(player, weaponToEquip, true, 0, false, false);
+	WAIT(500);
+
+	if (ScriptSettings::getBool("AimingAssist")) {
+		while (!PLAYER::IS_PLAYER_FREE_AIMING(PLAYER::PLAYER_ID()))
+		{
+			WAIT(0);
+			CONTROLS::_SET_CONTROL_NORMAL(0, GAMEPLAY::GET_HASH_KEY("INPUT_AIM"), 1);
+			PLAYER::SET_PLAYER_FORCED_AIM(PLAYER::PLAYER_ID(), 1, challengedPed, -1, 1);
+		}
+	}
+	//PLAYER::_0xBBA140062B15A8AC(PLAYER::PLAYER_ID()); // dead eye
+	setStage(DuelStage::Combat);
+	DECORATOR::DECOR_SET_INT(challengedPed, "SH_DUELS_dueled", 1);
 }
 
 void Duel::onPlayerBailed()
