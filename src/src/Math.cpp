@@ -234,3 +234,9 @@ Vector3 around(Vector3 source, float distance, bool onGround)
 
 	return aroundSource;
 }
+
+Vector3 calculatePointInDirection(Vector3 source, float heading, float distance)
+{
+	Vector3 direction = toVector3(SYSTEM::SIN(heading), SYSTEM::COS(heading), 0);
+	return source + direction * distance;
+}

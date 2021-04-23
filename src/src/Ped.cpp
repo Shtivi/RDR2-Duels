@@ -265,3 +265,16 @@ int findUnoccupiedScenarioPointAround(Vector3 source, float radius)
 
 	return best;
 }
+
+bool isPedCop(Ped ped)
+{
+	return PED::GET_PED_RELATIONSHIP_GROUP_HASH(ped) == GAMEPLAY::GET_HASH_KEY("REL_COP");
+}
+
+bool isPedLawman(Ped ped)
+{
+	int pedRelationshipGroup = PED::GET_PED_RELATIONSHIP_GROUP_HASH(ped);
+	return 
+		isPedCop(ped) || 
+		pedRelationshipGroup == -886193798 /* Bounty hunters */;
+}

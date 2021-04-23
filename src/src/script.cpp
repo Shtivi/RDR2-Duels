@@ -22,13 +22,18 @@ void Initialize()
 	player = PLAYER::PLAYER_PED_ID();
 	DECORATOR::DECOR_REGISTER("SH_DUELS_dueled", 3);
 	initializeLogger();
-	log("Duels - 1.0.0 - By Shtivi");
+	log("Duels by Shtivi - 1.0.0");
 	ScriptSettings::load("Duels.ini", new SettingsMap {
 		{"EnableDuelCamera", 1},
 		{"AimingAssist", 0},
-		{"DisableHonorLoss", 0}
+		{"DisableHonorLoss", 0},
+		{"DuelLawmen", 0},
+		{"AttackOnBailing", 50},
+		{"EnableSoundEffects", 1},
+		{"EnableConversation", 1}
 	});
 	duels = new DuelsEngine();
+	UI::DISPLAY_HUD(true);
 }
 
 void main()
@@ -38,8 +43,6 @@ void main()
 	
 	while (true)
 	{
-		debug(ScriptSettings::get("EnableDuelCamera"));
-
 		player = PLAYER::PLAYER_PED_ID();
 		try
 		{
@@ -82,8 +85,8 @@ void main()
 						log(to_string(entityPos(e)));
 						showSubtitle(to_string(entityPos(e)));
 					}
-
-					debug((int)ENTITY::GET_ENTITY_MODEL(e));
+					
+					//debug((int)ENTITY::GET_ENTITY_MODEL(e));
 				}
 				else
 				{
@@ -98,8 +101,10 @@ void main()
 				if (PLAYER::GET_PLAYER_TARGET_ENTITY(PLAYER::PLAYER_ID(), &targetEntity))
 				{
 					if (IsKeyJustUp(VK_KEY_Z)) {
-						log(to_string(ENTITY::GET_ENTITY_HEADING(targetEntity)));
-						log(to_string((int)ENTITY::GET_ENTITY_MODEL(targetEntity)));
+						/*log(to_string(ENTITY::GET_ENTITY_HEADING(targetEntity)));
+						log(to_string((int)ENTITY::GET_ENTITY_MODEL(targetEntity)));*/
+						log((int)PED::GET_PED_RELATIONSHIP_GROUP_HASH(targetEntity));
+						showSubtitle(to_string((int)PED::GET_PED_RELATIONSHIP_GROUP_HASH(targetEntity)).c_str());
 					}
 				}
 				else
@@ -120,7 +125,6 @@ void main()
 
 			if (IsKeyJustUp(VK_KEY_X))
 			{
-				Ped ped = createPed("g_m_m_uniduster_01", playerPos() + getForwardVector(player) * rndInt(5, 10), 180);
 				//PED::SET_BLOCKING_OF_NON_TEMPORARY_EVENTS(ped, true);
 
 				
@@ -151,16 +155,33 @@ void main()
 
 			if (IsKeyJustUp(VK_KEY_Z))
 			{
-				//UI::DISPLAY_HUD(true);
 				Ped ped = createPed("A_M_M_BynRoughTravellers_01", playerPos() + getForwardVector(player) * rndInt(5, 10), 180);
-				Vector3 pos = entityPos(ped);
-				//DECISIONEVENT::ADD_SHOCKING_EVENT_AT_POSITION(0x2CA3408A, pos.x, pos.y, pos.z, 0, 30, 35, -1, 20, 1127481344, 0);
-				DECISIONEVENT::ADD_SHOCKING_EVENT_FOR_ENTITY(2507051957, player, 0, 30, 35, -1, 20, 1127481344, 0, 0, -1, -1);
-				WAIT(500);
 				ENTITY::SET_PED_AS_NO_LONGER_NEEDED(&ped);
-				//WAIT(5000);
-				//UI::DISPLAY_HUD(false);
+
+				//while (!ENTITY::IS_ENTITY_DEAD(ped))
+				//{
+				//	debug("killit");
+				//	WAIT(0);
+				//}
+
+				//	int bone;
+				//	PED::GET_PED_LAST_DAMAGE_BONE(ped, &bone);
+				//	if (bone == 21030)
+				//	{
+				//		showSubtitle("headshot");
+				//	}
+
+				////UI::DISPLAY_HUD(true);
+				//Ped ped = createPed("A_M_M_BynRoughTravellers_01", playerPos() + getForwardVector(player) * rndInt(5, 10), 180);
+				//Vector3 pos = entityPos(ped);
+				////DECISIONEVENT::ADD_SHOCKING_EVENT_AT_POSITION(0x2CA3408A, pos.x, pos.y, pos.z, 0, 30, 35, -1, 20, 1127481344, 0);
+				//DECISIONEVENT::ADD_SHOCKING_EVENT_FOR_ENTITY(2507051957, player, 0, 30, 35, -1, 20, 1127481344, 0, 0, -1, -1);
+				//WAIT(500);
+				//ENTITY::SET_PED_AS_NO_LONGER_NEEDED(&ped);
+				////WAIT(5000);
+				////UI::DISPLAY_HUD(false);
 			}
+
 
 			if (IsKeyJustUp(VK_F3))
 			{
@@ -169,9 +190,22 @@ void main()
 
 			if (IsKeyJustUp(VK_KEY_K))
 			{
+				log("player direction:");
+				log(to_string(getForwardVector(player)));
+				Position pos1 = getClosestVehicleNode(playerPos());
+				//Position pos2 = make_pair(calculatePointInDirection(pos1.first, pos1.second, 10), 0);
+				//log(to_string(pos1.second));
+				//log(to_string(ENTITY::GET_ENTITY_HEADING(player)));
+				Position pos2 = getClosestVehicleNode(calculatePointInDirection(pos1.first, pos1.second, 10), true);
 
-				//PLAYER::_0xBBA140062B15A8AC(PLAYER::PLAYER_ID());
+				log(to_string(pos1.first));
+				log(to_string(pos2.first));
 
+				Blip b1 = createBlip(pos1.first, BLIP_STYLE_WHITE_DOT);
+				Blip b2 = createBlip(pos2.first, BLIP_STYLE_WHITE_DOT);
+				WAIT(5000);
+				deleteBlipSafe(&b1);
+				deleteBlipSafe(&b2);
 			}
 		}
 

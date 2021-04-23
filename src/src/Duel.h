@@ -8,7 +8,9 @@ enum class DuelStage : int
 	Accpeted,
 	Positioning,
 	Drawing,
+	PostDuel,
 	Combat,
+	PlayerWon,
 	Declined,
 	PlayerBailed,
 	PlayerDirtyMove
@@ -27,6 +29,7 @@ private:
 	int opponentDrawTime;
 	GameCamera* duelCamera;
 	int duelShockingEvent;
+	bool isDuelWellPositioned;
 
 public:
 	Duel(Ped challengedPed, Position pos1, Position pos2);
@@ -47,4 +50,6 @@ private:
 	void onPlayerBailed();
 	void onPlayerDirtyMove();
 	void onPlayerDrew();
+	void onOpponentDeclined();
+	void onDuelWon();
 };

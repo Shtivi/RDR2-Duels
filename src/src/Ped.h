@@ -89,6 +89,8 @@ Object findUnoccupiedObjectAround(Vector3 location, float maxDistance, int objec
 Object findUnoccupiedObjectAround(Vector3 location, float maxDistance, vector<int> objectHashes, float occupationRadius = 2);
 void playSeatedScenario(Ped ped, Object object, const char* scenarioType, float heading = 180);
 int findUnoccupiedScenarioPointAround(Vector3 source, float radius);
+bool isPedCop(Ped ped);
+bool isPedLawman(Ped ped);
 
 #include "PedBehavior.h"
 #include "Conversation.h"

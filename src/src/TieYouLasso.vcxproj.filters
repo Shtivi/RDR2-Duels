@@ -115,6 +115,9 @@
     <ClCompile Include="Delay.cpp">
       <Filter>Src\Game\Game\Peds\Interactions</Filter>
     </ClCompile>
+    <ClCompile Include="Game.cpp">
+      <Filter>Src\Game\Game</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\inc\types.h">
@@ -221,6 +224,12 @@
     </ClInclude>
     <ClInclude Include="Conversation.h">
       <Filter>Src\Game\Game\Peds\Interactions</Filter>
+    </ClInclude>
+    <ClInclude Include="Game.h">
+      <Filter>Src\Game\Game</Filter>
+    </ClInclude>
+    <ClInclude Include="Math.h">
+      <Filter>include</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

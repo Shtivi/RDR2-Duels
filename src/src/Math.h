@@ -34,3 +34,4 @@ Vector3 operator*(float a, Vector3 const& u);
 Vector3 operator-(Vector3 const& v, Vector3 const& u);
 Vector3 operator* (Vector3 const& left, Vector3 const& right);
 bool operator! (Vector3 const& left);
+Vector3 calculatePointInDirection(Vector3 source, float heading, float distance);

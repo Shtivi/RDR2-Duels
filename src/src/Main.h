@@ -40,6 +40,7 @@ using namespace std;
 #include "VectorUtils.h"
 #include "Logger.h"
 #include "Stopwatch.h"
+#include "Game.h"
 #include "World.h"
 #include "Camera.h"
 #include "Prompt.h"

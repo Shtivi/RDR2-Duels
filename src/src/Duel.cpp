@@ -1,6 +1,13 @@
 #include "Main.h"
 
-
+bool areMovementControlActive()
+{
+	return
+		CONTROLS::IS_CONTROL_PRESSED(0, 0xD27782E3) || // INPUT_MOVE_DOWN_ONLY
+		CONTROLS::IS_CONTROL_PRESSED(0, 0x8FD015D8) || // INPUT_MOVE_UP_ONLY
+		CONTROLS::IS_CONTROL_PRESSED(0, 0x7065027D) || // INPUT_MOVE_LEFT_ONLY
+		CONTROLS::IS_CONTROL_PRESSED(0, 0xB4E465B4); // INPUT_MOVE_RIGHT_ONLY
+}
 
 Duel::Duel(Ped challengedPed, Position pos1, Position pos2)
 {
@@ -12,10 +19,11 @@ Duel::Duel(Ped challengedPed, Position pos1, Position pos2)
 	this->opponentDrawTime = 5;
 	this->duelCamera = NULL;
 	this->duelShockingEvent = 0;
+	this->isDuelWellPositioned = false;
 
 	drawPrompt = new Prompt("Draw", GAMEPLAY::GET_HASH_KEY("INPUT_ATTACK"), PromptMode::Mash);
-	drawPrompt->setMashModeIncreasePerPress(1.1);
-	drawPrompt->setMashModeGrowthSpeed(0.025);
+	drawPrompt->setMashModeIncreasePerPress(1.5);
+	drawPrompt->setMashModeGrowthSpeed(0.015);
 	drawPrompt->setMashModeDecaySpeed(0);
 	drawPrompt->setUrgentPulsating(true);
 	drawPrompt->hide();
@@ -44,6 +52,10 @@ void Duel::update()
 			if (playerDistance > 20)
 			{
 				setStage(DuelStage::PlayerBailed);
+			} 
+			else if (distance(entityPos(challengedPed), pos2.first) > 20)
+			{
+				setStage(DuelStage::Declined);
 			}
 
 			if (PLAYER::IS_PLAYER_FREE_AIMING_AT_ENTITY(PLAYER::PLAYER_ID(), challengedPed))
@@ -66,20 +78,37 @@ void Duel::update()
 		}
 		case DuelStage::Drawing:
 		{
+			PLAYER::SET_ALL_RANDOM_PEDS_FLEE_THIS_FRAME(PLAYER::PLAYER_ID());
 			if (AI::GET_SEQUENCE_PROGRESS(player) >= 1 && AI::GET_SEQUENCE_PROGRESS(challengedPed) >= 2)
 			{
+				if (areMovementControlActive())
+				{
+					setStage(DuelStage::PlayerBailed);
+					AI::CLEAR_PED_TASKS(player, 1, 1);
+					AI::CLEAR_PED_TASKS(challengedPed, 1, 1);
+
+					if (ScriptSettings::get("AttackOnBailing") > rndInt(1, 101))
+					{
+						pedEquipBestWeapon(challengedPed);
+						WAIT(500);
+						AI::TASK_COMBAT_PED(challengedPed, player, 0, 0);
+					}
+
+					return;
+				}
 
 				if (!drawTimer.isStarted())
 				{
 					onDrawModeEntered();
 				}
-
-				if (drawTimer.getElapsedSeconds() == opponentDrawTime)
+				else if (drawTimer.getElapsedSeconds() == opponentDrawTime)
 				{
 					Hash opponentSidearmWeapon;
 					WEAPON::GET_CURRENT_PED_WEAPON(challengedPed, &opponentSidearmWeapon, true, 2, false);
 					WEAPON::SET_CURRENT_PED_WEAPON(challengedPed, opponentSidearmWeapon, true, 0, 0, 0);
 					AI::TASK_SHOOT_AT_ENTITY(challengedPed, player, -1, -957453492, 0);
+					AI::CLEAR_PED_TASKS(player, 1, 1);
+					setStage(DuelStage::PostDuel);
 				}
 
 				drawPrompt->show();
@@ -100,9 +129,23 @@ void Duel::update()
 			}
 			break;
 		}
-		case DuelStage::Combat:
+		case DuelStage::PostDuel:
 		{
+			if (drawTimer.getElapsedSeconds() == 3)
+			{
+				setStage(DuelStage::Combat);
+				return;
+			}
+
+			if (ENTITY::IS_ENTITY_DEAD(challengedPed))
+			{
+				onDuelWon();
+				setStage(DuelStage::PlayerWon);
+			}
+
+			break;
 		}
+
 	}
 }
 
@@ -131,6 +174,14 @@ void Duel::setStage(DuelStage stage)
 		else if (stage == DuelStage::Drawing)
 		{
 		}
+		else if (stage == DuelStage::Declined)
+		{
+			onOpponentDeclined();
+		}
+		else if (stage == DuelStage::PostDuel)
+		{
+			drawTimer.start();
+		}
 	}
 
 	this->stage = stage;
@@ -147,19 +198,25 @@ void Duel::onPedChallenged()
 	AI::CLOSE_SEQUENCE_TASK(seq);
 	AI::TASK_PERFORM_SEQUENCE(challengedPed, seq);
 
-	Conversation* conversation = new Conversation();
-	conversation->addLine(player, "RE_DUELB_RHD_V1_DB_CALL");
-	conversation->play();
+	if (ScriptSettings::getBool("EnableConversation"))
+	{
+		Conversation* conversation = new Conversation();
+		conversation->addLine(player, "RE_DUELB_RHD_V1_DB_CALL");
+		conversation->play();
+	}
 }
 
 void Duel::onDuelAccepted()
 {
-	Conversation* conversation = new Conversation();
-	conversation->addLine(challengedPed, "CHALLENGE_THREATEN_ARMED");
-	conversation->play();
+	if (ScriptSettings::getBool("EnableConversation"))
+	{
+		Conversation* conversation = new Conversation();
+		conversation->addLine(challengedPed, "CHALLENGE_THREATEN_ARMED");
+		conversation->play();
+	}
+
 	generateDuelPosition();	
 	PED::SET_BLOCKING_OF_NON_TEMPORARY_EVENTS(challengedPed, true);
-
 }
 
 void Duel::generateDuelPosition()
@@ -168,22 +225,26 @@ void Duel::generateDuelPosition()
 	Vector3 opponentCoords = entityPos(challengedPed);
 
 	pos1 = getClosestVehicleNode(playerCoords);
-	pos2 = getClosestVehicleNode(playerCoords + getForwardVector(player) * 12, true);
+	pos2 = getClosestVehicleNode(calculatePointInDirection(pos1.first, pos1.second, 10), true);
+	//pos2 = getClosestVehicleNode(playerCoords + getForwardVector(player) * 10, true);
+	float nodesDistance = distance(pos1.first, pos2.first);
+	isDuelWellPositioned = true;
 
-	if (distance(pos1.first, pos2.first) > 14 || distance(pos1.first, playerCoords) > 20)
+	if (nodesDistance > 14 || nodesDistance < 6 || distance(pos1.first, playerCoords) > 20)
 	{
-		float playerHeading = ENTITY::GET_ENTITY_HEADING(player);
-		pos1 = make_pair(playerCoords, playerHeading);
-		pos2 = make_pair(opponentCoords, playerHeading - 180);
-		
-		//float distanceToOpponent = distance(player, challengedPed);
-		//if (distanceToOpponent >= 8 && distanceToOpponent < 15)
-		//{
-		//}
-		//else
-		//{
-		//	pos2 = make_pair(entityPos(challengedPed), playerHeading - 180);
-		//}
+		isDuelWellPositioned = false;
+		if (distance(playerCoords, opponentCoords) > 20)
+		{
+			setStage(DuelStage::Declined);
+			return;
+		}
+		else
+		{
+			float playerHeading = ENTITY::GET_ENTITY_HEADING(player);
+			pos1 = make_pair(playerCoords, playerHeading);
+			Vector3 opponentDuelCoords = opponentCoords + getForwardVector(player) * (10 - distance(playerCoords, opponentCoords));
+			pos2 = make_pair(*getSafeCoordForPed(opponentDuelCoords), playerHeading - 180);
+		}
 	}
 }
 
@@ -195,8 +256,9 @@ void Duel::onPositioningInitiated()
 	AI::CLEAR_PED_TASKS(challengedPed, 1, 1);
 	Object seq;
 	AI::OPEN_SEQUENCE_TASK(&seq);
+	
 	AI::TASK_FOLLOW_NAV_MESH_TO_COORD(0, pos2.first.x, pos2.first.y, pos2.first.z, 1, -1, 0.8f, 1, 0);
-	AI::TASK_ACHIEVE_HEADING(0, pos2.second -50, 1000);
+	AI::TASK_ACHIEVE_HEADING(0, pos2.second, 1000);
 	AI::CLOSE_SEQUENCE_TASK(seq);
 	AI::TASK_PERFORM_SEQUENCE(challengedPed, seq);
 	WAIT(200);
@@ -230,12 +292,20 @@ void Duel::enterDrawMode()
 	AI::CLOSE_SEQUENCE_TASK(seq1);
 	AI::TASK_PERFORM_SEQUENCE(player, seq1);
 
+	WEAPON::SET_CURRENT_PED_WEAPON(challengedPed, WeaponHash::Unarmed, true, 0, 0, 0);
 	AI::CLEAR_PED_TASKS(challengedPed, 0, 0);
 	Object seq2;
 	AI::OPEN_SEQUENCE_TASK(&seq2);
 	AI::TASK_TURN_PED_TO_FACE_ENTITY(0, player, 2000, 0, 0, 0);
 	AI::TASK_LOOK_AT_ENTITY(0, player, -1, 0, 51, 0);
-	playAnimation(0, "base_npc", "mini_duel@base", -1, 1, -8, 1);
+	if (PED::_0x50F124E6EF188B22(challengedPed))
+	{
+		playAnimation(0, "base_drunk", "mini_duel@challenger@drunk", -1, 1, -8, 1);
+	}
+	else
+	{
+		playAnimation(0, "base_npc", "mini_duel@base", -1, 1, -8, 1);
+	}
 	AI::CLOSE_SEQUENCE_TASK(seq2);
 	AI::TASK_PERFORM_SEQUENCE(challengedPed, seq2);
 
@@ -264,7 +334,11 @@ void Duel::onDrawModeEntered()
 
 	WAIT(3000);
 
-	AUDIO::PLAY_SOUND_FRONTEND("HUD_DRAW", "HUD_DUEL_SOUNDSET", true, 0);
+	if (ScriptSettings::getBool("EnableSoundEffects"))
+	{
+		AUDIO::PLAY_SOUND_FRONTEND("HUD_DRAW", "HUD_DUEL_SOUNDSET", true, 0);
+	}
+
 	opponentDrawTime = rndInt(4, 7);
 	drawTimer.start();
 }
@@ -279,16 +353,22 @@ void Duel::onPlayerDrew()
 	WEAPON::SET_CURRENT_PED_WEAPON(player, weaponToEquip, true, 0, false, false);
 	WAIT(500);
 
-	if (ScriptSettings::getBool("AimingAssist")) {
-		while (!PLAYER::IS_PLAYER_FREE_AIMING(PLAYER::PLAYER_ID()))
-		{
-			WAIT(0);
-			CONTROLS::_SET_CONTROL_NORMAL(0, GAMEPLAY::GET_HASH_KEY("INPUT_AIM"), 1);
-			PLAYER::SET_PLAYER_FORCED_AIM(PLAYER::PLAYER_ID(), 1, challengedPed, -1, 1);
-		}
-	}
+	Hash opponentSidearmWeapon;
+	WEAPON::GET_CURRENT_PED_WEAPON(challengedPed, &opponentSidearmWeapon, true, 2, false);
+	WEAPON::SET_CURRENT_PED_WEAPON(challengedPed, opponentSidearmWeapon, true, 0, 0, 0);
+	AI::TASK_SHOOT_AT_ENTITY(challengedPed, player, -1, -957453492, 0);
+
+	//if (ScriptSettings::getBool("AimingAssist")) {
+	//	while (!PLAYER::IS_PLAYER_FREE_AIMING(PLAYER::PLAYER_ID()))
+	//	{
+	//		WAIT(0);
+	//		CONTROLS::_SET_CONTROL_NORMAL(0, GAMEPLAY::GET_HASH_KEY("INPUT_AIM"), 1);
+	//		PLAYER::SET_PLAYER_FORCED_AIM(PLAYER::PLAYER_ID(), 1, challengedPed, -1, 1);
+	//	}
+	//}
 	//PLAYER::_0xBBA140062B15A8AC(PLAYER::PLAYER_ID()); // dead eye
-	setStage(DuelStage::Combat);
+
+	setStage(DuelStage::PostDuel);
 	DECORATOR::DECOR_SET_INT(challengedPed, "SH_DUELS_dueled", 1);
 }
 
@@ -310,4 +390,18 @@ void Duel::cleanup()
 	drawPrompt->hide();
 	PED::SET_BLOCKING_OF_NON_TEMPORARY_EVENTS(challengedPed, false);
 	GameCamera::setScriptCamsRendering(false, true, 500);
+	UI::DISPLAY_HUD(true);
+}
+
+void Duel::onOpponentDeclined()
+{
+	playAmbientSpeech(player, "WON_DISPUTE");
+}
+
+void Duel::onDuelWon()
+{
+	if (ScriptSettings::getBool("EnableSoundEffects"))
+	{
+		playMusic("DUEL_GENERAL_END_OS");
+	}
 }
