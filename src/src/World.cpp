@@ -306,7 +306,7 @@ Vector3* getSafeCoordForPed(Vector3 destination)
 	Vector3* out = new Vector3();
 	if (!PATHFIND::GET_SAFE_COORD_FOR_PED(destination.x, destination.y, destination.z, false, out, 16))
 	{
-		return NULL;
+		*out = toVector3(0, 0, 0);
 	}
 
 	return out;

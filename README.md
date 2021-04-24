@@ -1,22 +1,30 @@
-# RDR2-Seats
-Rockstar built a huge, beautiful world.  
-This mod allows you to enjoy it a little bit more, by adding the ability to use all kinds of seats.
+# RDR2-Duels
+A simple mod lets duel you everyone with a gun in the game.  
 
 ### Features
-- All common seats such as benches, chairs, etc are not interactable.  
-- Your character will start random scenarios while sitting, like drinking a beer or smoking a cigar.  
-- Sitting will restore your cores slowly.  
+- Much inspired by the real duels in the game.
+- Adds an option to duel any npc.
+- Customizable settings.
+- Cinematic duels, converstaions and sound effects. 
+- Controller friendly.
 
 ### Installation:
 - Download and install AB's ScripthookRDR2: http://www.dev-c.com/rdr2/scripthookrdr2/
 - Make sure you have an asi loader, it usually comes along with Scripthook.
 - Remove previous versions of the mod, if you have any installed. 
-- Copy *Seats.asi* to the game's main installation folder.
+- Copy *Duels.asi* and *Duels.ini* to the game's main installation folder.
 
-### How to play:
-- Approach a bench or a chair while you're on foot.  
-- You'll notice a prompt, hold the key to sit on it.  
-- Once you're sitted, hold the key again to get up or simply hit one of the movment keys.
+### How to use:
+- Approach a ped and lock on it. You'll notice a new prompt, letting you to challenge the ped for a duel.
+- Once challenged, get to the blip marked on your radar.
+- Draw your sidearm by holding the attack control.
+- Kill your opponent!
+- You may walk from the duel at any time, but your opponent might attack you for bailing.
+- Playing a dirty move like attacking your opponent while it's getting into position will cause him to attack you.
+
+### Settings and customization
+- Add the Duels.ini file to the game's main installation folder.
+- Follow the instructions in the file and make sure you make the right changes.
 
 ### Notes:
-- If you'd like to report a seat which doesn't show the prompt, please attach a screenshot and describe where it's located.
+- If you'd like to report an issue, please attach your Duels.log file.

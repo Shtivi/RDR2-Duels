@@ -14,7 +14,7 @@ void ScriptSettings::load(const char* filename, SettingsMap* defaults)
 	file.open(filename);;
 	if (file.is_open())
 	{
-		log("Loading settings file");
+		log(string("loading settings file: ").append(filename));
 		while (!file.eof())
 		{
 			std::getline(file, input);
@@ -24,19 +24,10 @@ void ScriptSettings::load(const char* filename, SettingsMap* defaults)
 
 		file.close();
 		log("settings file loaded");
-
-		for (pair<string, int> i : *settings)
-		{
-			string msg("");
-			msg.append(i.first);
-			msg.append(": ");
-			msg.append(to_string(i.second));
-			log(msg.c_str());
-		}
 	}
 	else
 	{
-		log("unable to load from data file");
+		log("Unable to load from data file, please make sure it exists.");
 	}
 }
 
@@ -73,18 +64,14 @@ void ScriptSettings::handleLine(string* line)
 	vector<string> parts = split(*line, '=');
 	if (parts.size() != 2)
 	{
-		string msg("invalid line: ");
-		msg.append(line->c_str());
-		log(msg.c_str());
+		log(string("cannot parse line: ").append(line->c_str()).append(", please make sure it is assembled of the correct format (<setting_name>=<settings_value>)."));
 		return;
 	}
 
 	string key = parts.at(0);
 	if (!is_number(parts.at(1)))
 	{
-		string msg("invalid line: ");
-		msg.append(line->c_str());
-		log(msg.c_str());
+		log(string("cannot parse line: ").append(line->c_str()).append(", value is not a number."));
 		return;
 	}
 

@@ -1,5 +1,23 @@
 #include "Main.h"
 
+vector<const char*> ChallengePedsPlayerLines = vector<const char*>
+{
+	"RE_DUELB_RHD_V1_DB_CALL",
+	"RE_DUELB_RHD_V1_INTRO_NEG",
+};
+
+vector<const char*> ToTheDuelPlayerLines = vector<const char*>
+{
+	"RE_DUELB_RHD_V1_TO_THE_DUEL_POS",
+	"RE_DUELB_RHD_V1_TO_THE_DUEL_NEG"
+};
+
+vector<const char*> PlayerWonDuelLines = vector<const char*>{
+	"WITNESS_EXECUTE",
+	"PLAYER_TAUNT_SINGLE_ENEMY_NEG_NEAR",
+	"RE_DUELB_RHD_V1_PLYFINAL_KILL"
+};
+
 bool areMovementControlActive()
 {
 	return
@@ -49,7 +67,7 @@ void Duel::update()
 		}
 		case DuelStage::Positioning:
 		{
-			if (playerDistance > 20)
+			if (playerDistance > 25)
 			{
 				setStage(DuelStage::PlayerBailed);
 			} 
@@ -65,11 +83,13 @@ void Duel::update()
 
 			if (!positionBlip)
 			{
+				log("waiting for positioning to be completed");
 				onPositioningInitiated();
 			}
 
 			if (isPositioningCompleted())
 			{
+				log("duel psotioning completed");
 				deleteBlipSafe(&positionBlip);
 				enterDrawMode();
 				setStage(DuelStage::Drawing);
@@ -83,15 +103,14 @@ void Duel::update()
 			{
 				if (areMovementControlActive())
 				{
+					log("Duel was abandonded by player");
 					setStage(DuelStage::PlayerBailed);
 					AI::CLEAR_PED_TASKS(player, 1, 1);
 					AI::CLEAR_PED_TASKS(challengedPed, 1, 1);
 
-					if (ScriptSettings::get("AttackOnBailing") > rndInt(1, 101))
+					if (ScriptSettings::get("AttackOnBailingChance") > rndInt(1, 101))
 					{
-						pedEquipBestWeapon(challengedPed);
-						WAIT(500);
-						AI::TASK_COMBAT_PED(challengedPed, player, 0, 0);
+						onPlayerDirtyMove();
 					}
 
 					return;
@@ -161,6 +180,7 @@ bool Duel::isRunning()
 
 void Duel::setStage(DuelStage stage)
 {
+	DuelStage oldStage = this->stage;
 	if (this->stage != stage)
 	{
 		if (stage == DuelStage::PlayerBailed)
@@ -185,6 +205,7 @@ void Duel::setStage(DuelStage stage)
 	}
 
 	this->stage = stage;
+	log(string("duel stage changed from: ").append(to_string((int)oldStage)).append(" to: ").append(to_string((int)this->stage)));
 }
 
 void Duel::onPedChallenged()
@@ -201,7 +222,8 @@ void Duel::onPedChallenged()
 	if (ScriptSettings::getBool("EnableConversation"))
 	{
 		Conversation* conversation = new Conversation();
-		conversation->addLine(player, "RE_DUELB_RHD_V1_DB_CALL");
+		// CALLOUT_AT_MALE_ARMED
+		conversation->addLine(player, (char*)ChallengePedsPlayerLines.at(rndInt(0, ChallengePedsPlayerLines.size())));
 		conversation->play();
 	}
 }
@@ -225,12 +247,12 @@ void Duel::generateDuelPosition()
 	Vector3 opponentCoords = entityPos(challengedPed);
 
 	pos1 = getClosestVehicleNode(playerCoords);
-	pos2 = getClosestVehicleNode(calculatePointInDirection(pos1.first, pos1.second, 10), true);
+	pos2 = getClosestVehicleNode(calculatePointInDirection(pos1.first, pos1.second, 12), true);
 	//pos2 = getClosestVehicleNode(playerCoords + getForwardVector(player) * 10, true);
 	float nodesDistance = distance(pos1.first, pos2.first);
 	isDuelWellPositioned = true;
 
-	if (nodesDistance > 14 || nodesDistance < 6 || distance(pos1.first, playerCoords) > 20)
+	if (nodesDistance > 14 || nodesDistance < 6 || distance(pos1.first, playerCoords) > 25)
 	{
 		isDuelWellPositioned = false;
 		if (distance(playerCoords, opponentCoords) > 20)
@@ -283,6 +305,11 @@ void Duel::enterDrawMode()
 {
 	duelShockingEvent = DECISIONEVENT::ADD_SHOCKING_EVENT_FOR_ENTITY(2507051957, challengedPed, 0, 30, 35, -1, 20, 1127481344, 0, 0, -1, -1);
 
+	if (ScriptSettings::getBool("EnableConversation") && rndInt(0, 2) == 1)
+	{
+		playAmbientSpeech(player, (char*)ToTheDuelPlayerLines.at(rndInt(0, ToTheDuelPlayerLines.size())));
+	}
+
 	AI::CLEAR_PED_TASKS(player, 0, 0);
 	Object seq1;
 	AI::OPEN_SEQUENCE_TASK(&seq1);
@@ -317,6 +344,7 @@ void Duel::enterDrawMode()
 
 void Duel::onDrawModeEntered()
 {
+	log("entering Draw Mode");
 	if (ScriptSettings::getBool("EnableDuelCamera"))
 	{
 		Vector3 offset = getForwardVector(player) * -1.0 + getUpVector(player) * 0.1 + getRightVector(player) * 0.8f;
@@ -375,12 +403,13 @@ void Duel::onPlayerDrew()
 void Duel::onPlayerBailed()
 {
 	playAmbientSpeech(challengedPed, "WON_DISPUTE");
-
 }
 
 void Duel::onPlayerDirtyMove()
 {
 	playAmbientSpeech(challengedPed, "GENERIC_INSULT_HIGH_MALE");
+	pedEquipBestWeapon(challengedPed);
+	WAIT(500);
 	AI::TASK_COMBAT_PED(challengedPed, player, 0, 16);
 }
 
@@ -395,7 +424,7 @@ void Duel::cleanup()
 
 void Duel::onOpponentDeclined()
 {
-	playAmbientSpeech(player, "WON_DISPUTE");
+	playAmbientSpeech(player, "MELEE_ANTAGONIZE_MALE");
 }
 
 void Duel::onDuelWon()
@@ -404,4 +433,6 @@ void Duel::onDuelWon()
 	{
 		playMusic("DUEL_GENERAL_END_OS");
 	}
+
+	playAmbientSpeech(player, (char*)PlayerWonDuelLines.at(rndInt(0, PlayerWonDuelLines.size())));
 }

@@ -23,17 +23,17 @@ void Initialize()
 	DECORATOR::DECOR_REGISTER("SH_DUELS_dueled", 3);
 	initializeLogger();
 	log("Duels by Shtivi - 1.0.0");
+
 	ScriptSettings::load("Duels.ini", new SettingsMap {
 		{"EnableDuelCamera", 1},
-		{"AimingAssist", 0},
 		{"DisableHonorLoss", 0},
 		{"DuelLawmen", 0},
-		{"AttackOnBailing", 50},
+		{"AttackOnBailingChance", 50},
 		{"EnableSoundEffects", 1},
 		{"EnableConversation", 1}
 	});
+
 	duels = new DuelsEngine();
-	UI::DISPLAY_HUD(true);
 }
 
 void main()
@@ -125,18 +125,7 @@ void main()
 
 			if (IsKeyJustUp(VK_KEY_X))
 			{
-				//PED::SET_BLOCKING_OF_NON_TEMPORARY_EVENTS(ped, true);
-
-				
-
-				//Vector3 offset = getForwardVector(player) * -1.0 + getUpVector(player) * 0.1 + getRightVector(player) * 0.8f;
-				//GameCamera cam = GameCamera(entityPos(player) + getForwardVector(player) * 500, 70);
-				//cam.attachTo(player, offset,  false);
-				////cam.setPosition(entityPos(player) + -1 * getForwardVector(player) * 500);
-				////cam.setRotation(toVector3(0, 0, 400));
-				//cam.pointAt(ped);
-				//GameCamera::setScriptCamsRendering(true);
-				//cam.setScriptCamsRendering(false);
+				playAmbientSpeech(player, "RE_ES_EMR_V1_ACCEPT_P");
 			}
 
 			if (IsKeyJustUp(VK_F1))

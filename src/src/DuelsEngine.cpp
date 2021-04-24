@@ -33,7 +33,6 @@ bool isPedDuelable(Ped ped)
 DuelsEngine::DuelsEngine()
 {
 	challengePrompt = new Prompt("Duel", GAMEPLAY::GET_HASH_KEY("INPUT_INTERACT_OPTION1"), PromptMode::Standard);
-
 	challengePrompt->hide();
 }
 
@@ -49,6 +48,7 @@ void DuelsEngine::update()
 
 			if (challengePrompt->isActivatedByPlayer())
 			{
+				log("Duel initiated");
 				duel = new Duel(
 					targetEntity,
 					getClosestVehicleNode(playerPos()),
@@ -63,6 +63,7 @@ void DuelsEngine::update()
 		duel->update();
 		if (!duel->isRunning())
 		{
+			log("finalizing duel");
 			duel->cleanup();
 			duel = NULL;
 		}
