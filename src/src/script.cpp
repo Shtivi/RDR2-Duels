@@ -21,6 +21,7 @@ void Initialize()
 {
 	player = PLAYER::PLAYER_PED_ID();
 	DECORATOR::DECOR_REGISTER("SH_DUELS_dueled", 3);
+	DECORATOR::DECOR_REGISTER("SH_DUELS_duelable", 3);
 	initializeLogger();
 	log("Duels by Shtivi - 1.0.0");
 
@@ -75,6 +76,15 @@ void main()
 		if (debugOn)
 		{
 
+			//DECISIONEVENT::REMOVE_ALL_SHOCKING_EVENTS(0);
+			//DECISIONEVENT::SUPPRESS_SHOCKING_EVENTS_NEXT_FRAME();
+
+			Vector3 pos = playerPos();
+
+
+			//debug(DECISIONEVENT::IS_SHOCKING_EVENT_IN_SPHERE(0x93B7032F, pos.x, pos.y, pos.z, 60));
+			//debug(DECISIONEVENT::IS_SHOCKING_EVENT_IN_SPHERE(1811873798, pos.x, pos.y, pos.z, 60));
+
 			Hash weaponHash;
 			WEAPON::GET_CURRENT_PED_WEAPON(player, &weaponHash, 0, 0, 0);
 			if (weaponHash != GAMEPLAY::GET_HASH_KEY("WEAPON_UNARMED")) {
@@ -85,7 +95,7 @@ void main()
 						log(to_string(entityPos(e)));
 						showSubtitle(to_string(entityPos(e)));
 					}
-					
+					//debug(PED::IS_PED_RESPONDING_TO_EVENT(e, -587661767));
 					//debug((int)ENTITY::GET_ENTITY_MODEL(e));
 				}
 				else
@@ -103,12 +113,20 @@ void main()
 					if (IsKeyJustUp(VK_KEY_Z)) {
 						/*log(to_string(ENTITY::GET_ENTITY_HEADING(targetEntity)));
 						log(to_string((int)ENTITY::GET_ENTITY_MODEL(targetEntity)));*/
-						log((int)PED::GET_PED_RELATIONSHIP_GROUP_HASH(targetEntity));
-						showSubtitle(to_string((int)PED::GET_PED_RELATIONSHIP_GROUP_HASH(targetEntity)).c_str());
+						//log((int)PED::GET_PED_RELATIONSHIP_GROUP_HASH(targetEntity));
+						//showSubtitle(to_string((int)PED::GET_PED_RELATIONSHIP_GROUP_HASH(targetEntity)).c_str());
+					}
+					//debug(PED::IS_PED_RESPONDING_TO_EVENT(targetEntity, -587661767));
+					//debug(PED::_0xC8D523BF5BBD3808(targetEntity, 0x12AB59DE));
+
+					if (PED::IS_PED_RESPONDING_TO_EVENT(targetEntity, 0x73221D75))
+					{
+						showSubtitle("event");
 					}
 				}
 				else
 				{
+
 				}
 			}
 
@@ -119,9 +137,9 @@ void main()
 			}
 
 
-			PURSUIT::CLEAR_CURRENT_PURSUIT();
-			PLAYER::CLEAR_PLAYER_WANTED_LEVEL(PLAYER::PLAYER_ID());
-			PLAYER::SET_EVERYONE_IGNORE_PLAYER(PLAYER::PLAYER_ID(), 0);
+			//PURSUIT::CLEAR_CURRENT_PURSUIT();
+			//PLAYER::CLEAR_PLAYER_WANTED_LEVEL(PLAYER::PLAYER_ID());
+			//PLAYER::SET_EVERYONE_IGNORE_PLAYER(PLAYER::PLAYER_ID(), 0);
 
 			if (IsKeyJustUp(VK_KEY_X))
 			{
@@ -145,7 +163,14 @@ void main()
 			if (IsKeyJustUp(VK_KEY_Z))
 			{
 				Ped ped = createPed("A_M_M_BynRoughTravellers_01", playerPos() + getForwardVector(player) * rndInt(5, 10), 180);
+				PED::SET_PED_CONFIG_FLAG(ped, 138, 1); // kill in one shot
+				PED::SET_PED_CONFIG_FLAG(ped, 6, 1); // PCF_DontInfluenceWantedLevel
+
+
 				ENTITY::SET_PED_AS_NO_LONGER_NEEDED(&ped);
+
+				// 0xEC6681EB EVENT_SHOCKING_AUDIBLE_REACTION 
+
 
 				//while (!ENTITY::IS_ENTITY_DEAD(ped))
 				//{

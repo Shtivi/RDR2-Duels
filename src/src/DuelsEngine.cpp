@@ -8,6 +8,7 @@ Duel* duel;
 bool isPedDuelable(Ped ped)
 {
 	bool allow =
+		DECORATOR::DECOR_GET_INT(ped, "SH_DUELS_duelable") == 1 &&
 		!ENTITY::IS_ENTITY_DEAD(ped) &&
 		PED::IS_PED_HUMAN(ped) &&
 		!ENTITY::IS_ENTITY_A_MISSION_ENTITY(ped) &&
@@ -18,7 +19,7 @@ bool isPedDuelable(Ped ped)
 		!AI::IS_PED_SPRINTING(ped) &&
 		!PED::IS_PED_FLEEING(ped) &&
 		!AI::IS_PED_CUFFED(ped) &&
-		!DECORATOR::DECOR_EXIST_ON(ped, "SH_DUELS_dueled") && 
+		!DECORATOR::DECOR_EXIST_ON(ped, "SH_DUELS_dueled") &&
 		!PED::IS_PED_IN_MELEE_COMBAT(ped) &&
 		!PED::_0x3AA24CCC0D451379(ped)/* IS_PED_HOGTIED */;
 
@@ -41,19 +42,35 @@ void DuelsEngine::update()
 	if (!duel)
 	{
 		Entity targetEntity = getPlayerTargetEntity();
-		if (targetEntity && isPedDuelable(targetEntity))
-		{
-			challengePrompt->show();
-			challengePrompt->setTargetEntity(targetEntity);
+		Vector3 playerCoords = playerPos();
 
-			if (challengePrompt->isActivatedByPlayer())
+		if (targetEntity)
+		{
+			if (DECISIONEVENT::IS_SHOCKING_EVENT_IN_SPHERE(0x73221D75 /* EVENT_SHOCKING_SEEN_INSULT */ , playerCoords.x, playerCoords.y, playerCoords.z, 10))
 			{
-				log("Duel initiated");
-				duel = new Duel(
-					targetEntity,
-					getClosestVehicleNode(playerPos()),
-					getClosestVehicleNode(playerPos() + getForwardVector(player) * DuelDistance, true)
-				);
+				DECORATOR::DECOR_SET_INT(targetEntity, "SH_DUELS_duelable", 1);
+			}
+
+			challengePrompt->setIsEnabled(!AUDIO::IS_AMBIENT_SPEECH_PLAYING(player));
+			
+			if (isPedDuelable(targetEntity))
+			{
+				challengePrompt->show();
+				challengePrompt->setTargetEntity(targetEntity);
+
+				if (challengePrompt->isActivatedByPlayer())
+				{
+					log("Duel initiated");
+					duel = new Duel(
+						targetEntity,
+						getClosestVehicleNode(playerPos()),
+						getClosestVehicleNode(playerPos() + getForwardVector(player) * DuelDistance, true)
+					);
+				}
+			}
+			else
+			{
+				challengePrompt->hide();
 			}
 		}
 	}

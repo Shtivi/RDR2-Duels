@@ -98,7 +98,8 @@ void Duel::update()
 		}
 		case DuelStage::Drawing:
 		{
-			PLAYER::SET_ALL_RANDOM_PEDS_FLEE_THIS_FRAME(PLAYER::PLAYER_ID());
+			PED::SET_PED_CONFIG_FLAG(challengedPed, 6, 1); // PCF_DontInfluenceWantedLevel
+
 			if (AI::GET_SEQUENCE_PROGRESS(player) >= 1 && AI::GET_SEQUENCE_PROGRESS(challengedPed) >= 2)
 			{
 				if (areMovementControlActive())

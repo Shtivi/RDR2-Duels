@@ -5,7 +5,7 @@ A simple mod lets duel you everyone with a gun in the game.
 - Much inspired by the real duels in the game.
 - Adds an option to duel any npc.
 - Customizable settings.
-- Cinematic duels, converstaions and sound effects. 
+- Cinematic duels, converstaions, animations and sound effects. 
 - Controller friendly.
 
 ### Installation:
@@ -18,7 +18,7 @@ A simple mod lets duel you everyone with a gun in the game.
 - Approach a ped and lock on it. You'll notice a new prompt, letting you to challenge the ped for a duel.
 - Once challenged, get to the blip marked on your radar.
 - Draw your sidearm by holding the attack control.
-- Kill your opponent!
+- Win the duel!
 - You may walk from the duel at any time, but your opponent might attack you for bailing.
 - Playing a dirty move like attacking your opponent while it's getting into position will cause him to attack you.
 
