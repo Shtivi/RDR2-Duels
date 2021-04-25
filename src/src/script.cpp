@@ -31,7 +31,9 @@ void Initialize()
 		{"DuelLawmen", 0},
 		{"AttackOnBailingChance", 50},
 		{"EnableSoundEffects", 1},
-		{"EnableConversation", 1}
+		{"EnableConversation", 1},
+		{"InstantKills", 0},
+		{"InstantDeath", 0}
 	});
 
 	duels = new DuelsEngine();

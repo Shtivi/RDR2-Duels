@@ -99,6 +99,11 @@ void Duel::update()
 		case DuelStage::Drawing:
 		{
 			PED::SET_PED_CONFIG_FLAG(challengedPed, 6, 1); // PCF_DontInfluenceWantedLevel
+			
+			if (ScriptSettings::getBool("InstantKills"))
+			{
+				PED::SET_PED_CONFIG_FLAG(challengedPed, 138, 1); // kill in one shot
+			}
 
 			if (AI::GET_SEQUENCE_PROGRESS(player) >= 1 && AI::GET_SEQUENCE_PROGRESS(challengedPed) >= 2)
 			{
@@ -161,6 +166,11 @@ void Duel::update()
 			{
 				onDuelWon();
 				setStage(DuelStage::PlayerWon);
+			}
+
+			if (ScriptSettings::getBool("InstantDeath") == 1)
+			{
+				PED::_0xD77AE48611B7B10A(challengedPed, 100);
 			}
 
 			break;
