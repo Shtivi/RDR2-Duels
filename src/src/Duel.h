@@ -41,6 +41,7 @@ public:
 private:
 	void setStage(DuelStage stage);
 	void onPedChallenged();
+	void handleDuelReaction(DuelChallengeReaction reaction);
 	void onDuelAccepted();
 	void generateDuelPosition();
 	void onPositioningInitiated();

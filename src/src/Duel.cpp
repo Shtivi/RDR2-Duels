@@ -56,7 +56,6 @@ void Duel::update()
 		case DuelStage::Challenged:
 		{
 			onPedChallenged();
-			setStage(DuelStage::Accpeted);
 			break;
 		}
 		case DuelStage::Accpeted:
@@ -100,7 +99,7 @@ void Duel::update()
 		{
 			PED::SET_PED_CONFIG_FLAG(challengedPed, 6, 1); // PCF_DontInfluenceWantedLevel
 			
-			if (ScriptSettings::getBool("InstantKills"))
+			if (ScriptSettings::getBool("OneShotKills"))
 			{
 				PED::SET_PED_CONFIG_FLAG(challengedPed, 138, 1); // kill in one shot
 			}
@@ -168,7 +167,7 @@ void Duel::update()
 				setStage(DuelStage::PlayerWon);
 			}
 
-			if (ScriptSettings::getBool("InstantDeath") == 1)
+			if (ScriptSettings::getBool("OneShotDeath") == 1)
 			{
 				PED::_0xD77AE48611B7B10A(challengedPed, 100);
 			}
@@ -236,6 +235,37 @@ void Duel::onPedChallenged()
 		// CALLOUT_AT_MALE_ARMED
 		conversation->addLine(player, (char*)ChallengePedsPlayerLines.at(rndInt(0, ChallengePedsPlayerLines.size())));
 		conversation->play();
+	}
+
+	handleDuelReaction(DuelsEngine::generatePedDuelReaction(challengedPed));
+}
+
+void Duel::handleDuelReaction(DuelChallengeReaction reaction)
+{
+	switch (reaction)
+	{
+		case DuelChallengeReaction::Accept:
+		{
+			setStage(DuelStage::Accpeted);
+			break;
+		}
+		case DuelChallengeReaction::Decline:
+		{
+			Conversation conv = Conversation();
+			conv.addLine(challengedPed, "IGNORING_YOU");
+			conv.play();
+			setStage(DuelStage::Declined);
+			break;
+		}
+		case DuelChallengeReaction::Flee:
+		{
+			Conversation conv = Conversation();
+			conv.addLine(challengedPed, "GET_AWAY_FROM_ME");
+			conv.play();
+			setStage(DuelStage::Declined);
+			AI::_0xFD45175A6DFD7CE9(challengedPed, player, 3, 0, 150.0f, 45000, 0);
+			break;
+		}
 	}
 }
 

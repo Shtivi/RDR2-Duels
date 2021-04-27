@@ -7,8 +7,12 @@ Duel* duel;
 
 bool isPedDuelable(Ped ped)
 {
+	if (ScriptSettings::getBool("AntagonizeFirst") && DECORATOR::DECOR_GET_INT(ped, "SH_DUELS_duelable") != 1)
+	{
+		return false;
+	}
+
 	bool allow =
-		DECORATOR::DECOR_GET_INT(ped, "SH_DUELS_duelable") == 1 &&
 		!ENTITY::IS_ENTITY_DEAD(ped) &&
 		PED::IS_PED_HUMAN(ped) &&
 		!ENTITY::IS_ENTITY_A_MISSION_ENTITY(ped) &&
@@ -84,5 +88,32 @@ void DuelsEngine::update()
 			duel->cleanup();
 			duel = NULL;
 		}
+	}
+}
+
+DuelChallengeReaction DuelsEngine::generatePedDuelReaction(Ped candidate)
+{
+	if (ScriptSettings::getBool("NeverRefuseDuels"))
+	{
+		return DuelChallengeReaction::Accept;
+	}
+
+	float pedAccuracy = PED::GET_PED_ACCURACY(candidate);
+	float normalized = (pedAccuracy - 20) / (80 - 20);
+	float aggressivenessFactor = abs((float)ScriptSettings::get("AggressivenessTendencyFactor") / 10);
+	float acceptanceChance = (normalized + aggressivenessFactor) * 100;
+	float random = rndInt(0, 101);
+	
+	if (acceptanceChance >= random)
+	{
+		return DuelChallengeReaction::Accept;
+	}
+	else if (random - (normalized * 100) > 30)
+	{
+		return DuelChallengeReaction::Flee;
+	}
+	else 
+	{
+		return DuelChallengeReaction::Decline;
 	}
 }

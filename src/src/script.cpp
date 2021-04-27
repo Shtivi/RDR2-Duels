@@ -32,8 +32,11 @@ void Initialize()
 		{"AttackOnBailingChance", 50},
 		{"EnableSoundEffects", 1},
 		{"EnableConversation", 1},
-		{"InstantKills", 0},
-		{"InstantDeath", 0}
+		{"OneShotKills", 0},
+		{"OneShotDeath", 0},
+		{"NeverRefuseDuels", 0},
+		{"AggressivenessTendencyFactor", 0},
+		{"AntagonizeFirst", 1}
 	});
 
 	duels = new DuelsEngine();
@@ -121,10 +124,10 @@ void main()
 					//debug(PED::IS_PED_RESPONDING_TO_EVENT(targetEntity, -587661767));
 					//debug(PED::_0xC8D523BF5BBD3808(targetEntity, 0x12AB59DE));
 
-					if (PED::IS_PED_RESPONDING_TO_EVENT(targetEntity, 0x73221D75))
-					{
-						showSubtitle("event");
-					}
+					//debug((int)PED::_0xEC6B59BE445FEC51(targetEntity));
+					//debug(PED::GET_PED_COMBAT_MOVEMENT(targetEntity));
+					//debug(PED::GET_PED_CONFIG_FLAG(targetEntity, 347, 1));
+					//debug(PED::GET_PED_ACCURACY(targetEntity));
 				}
 				else
 				{
@@ -165,9 +168,13 @@ void main()
 			if (IsKeyJustUp(VK_KEY_Z))
 			{
 				Ped ped = createPed("A_M_M_BynRoughTravellers_01", playerPos() + getForwardVector(player) * rndInt(5, 10), 180);
-				PED::SET_PED_CONFIG_FLAG(ped, 138, 1); // kill in one shot
-				PED::SET_PED_CONFIG_FLAG(ped, 6, 1); // PCF_DontInfluenceWantedLevel
+				//PED::SET_PED_CONFIG_FLAG(ped, 138, 1); // kill in one shot
+				//PED::SET_PED_CONFIG_FLAG(ped, 6, 1); // PCF_DontInfluenceWantedLevel
 
+				//showSubtitle(to_string(PED::GET_PED_COMBAT_MOVEMENT(ped)).c_str());
+				//showSubtitle(to_string(PED::GET_PED_CONFIG_FLAG(ped, 460, 0)).c_str());
+				/*WAIT(1000);
+				playAmbientSpeech(ped, "IGNORING_YOU");*/
 
 				ENTITY::SET_PED_AS_NO_LONGER_NEEDED(&ped);
 
@@ -225,7 +232,7 @@ void main()
 			}
 		}
 
-		if (true && IsKeyJustUp(VK_F2))
+		if (false && IsKeyJustUp(VK_F2))
 		{
 			setDebugMode(!isDebugMode());
 		}

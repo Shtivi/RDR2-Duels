@@ -1,5 +1,12 @@
 #pragma once
 
+enum class DuelChallengeReaction : int
+{
+	Accept,
+	Decline,
+	Flee
+};
+
 #include "Duel.h"
 
 class DuelsEngine
@@ -11,5 +18,8 @@ public:
 	DuelsEngine();
 	void update();
 
+	static DuelChallengeReaction generatePedDuelReaction(Ped candidate);
+
 private:
+
 };
