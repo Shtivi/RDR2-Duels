@@ -221,6 +221,7 @@ void Duel::setStage(DuelStage stage)
 void Duel::onPedChallenged()
 {
 	AI::CLEAR_PED_TASKS(challengedPed, 1, 1);
+	DECORATOR::DECOR_SET_INT(challengedPed, "SH_DUELS_dueled", 1);
 
 	Object seq;
 	AI::OPEN_SEQUENCE_TASK(&seq);
@@ -344,7 +345,8 @@ bool Duel::isPositioningCompleted()
 
 void Duel::enterDrawMode()
 {
-	duelShockingEvent = DECISIONEVENT::ADD_SHOCKING_EVENT_FOR_ENTITY(2507051957, challengedPed, 0, 30, 35, -1, 20, 1127481344, 0, 0, -1, -1);
+	//duelShockingEvent = DECISIONEVENT::ADD_SHOCKING_EVENT_FOR_ENTITY(2507051957, challengedPed, 0, 30, 35, -1, 20, 1127481344, 0, 0, -1, -1);
+	duelShockingEvent = DECISIONEVENT::ADD_SHOCKING_EVENT_FOR_ENTITY(0x2CA3408A, challengedPed, 0, 30, 35, -1, 20, 1127481344, 0, 0, -1, -1);
 
 	if (ScriptSettings::getBool("EnableConversation") && rndInt(0, 2) == 1)
 	{
@@ -438,7 +440,6 @@ void Duel::onPlayerDrew()
 	//PLAYER::_0xBBA140062B15A8AC(PLAYER::PLAYER_ID()); // dead eye
 
 	setStage(DuelStage::PostDuel);
-	DECORATOR::DECOR_SET_INT(challengedPed, "SH_DUELS_dueled", 1);
 }
 
 void Duel::onPlayerBailed()

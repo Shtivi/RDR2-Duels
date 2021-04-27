@@ -81,10 +81,15 @@ void main()
 		if (debugOn)
 		{
 
+			PLAYER::SET_MAX_WANTED_LEVEL(5);
+			//PLAYER::SET_EVERYONE_IGNORE_PLAYER(PLAYER::PLAYER_ID(), 1);
+			DECISIONEVENT::REMOVE_SHOCKING_EVENT_SPAWN_BLOCKING_AREAS();
+
 			//DECISIONEVENT::REMOVE_ALL_SHOCKING_EVENTS(0);
 			//DECISIONEVENT::SUPPRESS_SHOCKING_EVENTS_NEXT_FRAME();
 
 			Vector3 pos = playerPos();
+
 
 
 			//debug(DECISIONEVENT::IS_SHOCKING_EVENT_IN_SPHERE(0x93B7032F, pos.x, pos.y, pos.z, 60));
@@ -96,9 +101,12 @@ void main()
 				Entity e;
 				if (PLAYER::GET_ENTITY_PLAYER_IS_FREE_AIMING_AT(PLAYER::PLAYER_ID(), &e) /*&& distanceBetweenEntities(player, e) < 20*/) {
 					if (IsKeyJustUp(VK_KEY_Z)) {
-						log(to_string((int)ENTITY::GET_ENTITY_MODEL(e)));
+						/*log(to_string((int)ENTITY::GET_ENTITY_MODEL(e)));
 						log(to_string(entityPos(e)));
-						showSubtitle(to_string(entityPos(e)));
+						showSubtitle(to_string(entityPos(e)));*/
+					int bone;
+					PED::GET_PED_LAST_DAMAGE_BONE(e, &bone);
+					PED::_0xFFD54D9FE71B966A(e, 2, 26043, -.5, -.05, 0, ENTITY::GET_ENTITY_HEADING(e), 5000, -1, 1);
 					}
 					//debug(PED::IS_PED_RESPONDING_TO_EVENT(e, -587661767));
 					//debug((int)ENTITY::GET_ENTITY_MODEL(e));
@@ -167,7 +175,7 @@ void main()
 
 			if (IsKeyJustUp(VK_KEY_Z))
 			{
-				Ped ped = createPed("A_M_M_BynRoughTravellers_01", playerPos() + getForwardVector(player) * rndInt(5, 10), 180);
+				Ped ped = createPed("g_m_o_uniexconfeds_01", playerPos() + getForwardVector(player) * rndInt(5, 10), 180);
 				//PED::SET_PED_CONFIG_FLAG(ped, 138, 1); // kill in one shot
 				//PED::SET_PED_CONFIG_FLAG(ped, 6, 1); // PCF_DontInfluenceWantedLevel
 
@@ -175,6 +183,9 @@ void main()
 				//showSubtitle(to_string(PED::GET_PED_CONFIG_FLAG(ped, 460, 0)).c_str());
 				/*WAIT(1000);
 				playAmbientSpeech(ped, "IGNORING_YOU");*/
+
+				//PED::SET_BLOCKING_OF_NON_TEMPORARY_EVENTS(ped, true);
+
 
 				ENTITY::SET_PED_AS_NO_LONGER_NEEDED(&ped);
 
@@ -213,26 +224,10 @@ void main()
 
 			if (IsKeyJustUp(VK_KEY_K))
 			{
-				log("player direction:");
-				log(to_string(getForwardVector(player)));
-				Position pos1 = getClosestVehicleNode(playerPos());
-				//Position pos2 = make_pair(calculatePointInDirection(pos1.first, pos1.second, 10), 0);
-				//log(to_string(pos1.second));
-				//log(to_string(ENTITY::GET_ENTITY_HEADING(player)));
-				Position pos2 = getClosestVehicleNode(calculatePointInDirection(pos1.first, pos1.second, 10), true);
-
-				log(to_string(pos1.first));
-				log(to_string(pos2.first));
-
-				Blip b1 = createBlip(pos1.first, BLIP_STYLE_WHITE_DOT);
-				Blip b2 = createBlip(pos2.first, BLIP_STYLE_WHITE_DOT);
-				WAIT(5000);
-				deleteBlipSafe(&b1);
-				deleteBlipSafe(&b2);
 			}
 		}
 
-		if (false && IsKeyJustUp(VK_F2))
+		if (true && IsKeyJustUp(VK_F2))
 		{
 			setDebugMode(!isDebugMode());
 		}
