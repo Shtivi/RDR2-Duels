@@ -24,7 +24,6 @@ private:
 	Position pos2;
 	Ped challengedPed;
 	Blip positionBlip;
-	Prompt* drawPrompt;
 	Stopwatch drawTimer;
 	int opponentDrawTime;
 	GameCamera* duelCamera;

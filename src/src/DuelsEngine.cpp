@@ -15,7 +15,7 @@ bool isPedDuelable(Ped ped)
 	bool allow =
 		!ENTITY::IS_ENTITY_DEAD(ped) &&
 		PED::IS_PED_HUMAN(ped) &&
-		!ENTITY::IS_ENTITY_A_MISSION_ENTITY(ped) &&
+		//!ENTITY::IS_ENTITY_A_MISSION_ENTITY(ped) &&
 		PED::IS_PED_ON_FOOT(ped) &&
 		!PED::IS_PED_IN_COMBAT(ped, player) &&
 		doesPedHaveSidearm(ped) &&
@@ -26,22 +26,6 @@ bool isPedDuelable(Ped ped)
 		DECORATOR::DECOR_GET_INT(ped, "SH_DUELS_dueled") != 1 &&
 		!PED::IS_PED_IN_MELEE_COMBAT(ped) &&
 		!PED::_0x3AA24CCC0D451379(ped)/* IS_PED_HOGTIED */;
-
-	//debug(
-	//	string("alive ").append(to_string(!ENTITY::IS_ENTITY_DEAD(ped)))
-	//	.append("\nhuman ").append(to_string(PED::IS_PED_HUMAN(ped)))
-	//	.append("\n!mission ").append(to_string(!ENTITY::IS_ENTITY_A_MISSION_ENTITY(ped)))
-	//	.append("\nIS_PED_ON_FOOT ").append(to_string(PED::IS_PED_ON_FOOT(ped)))
-	//	.append("\n!IS_PED_IN_COMBAT ").append(to_string(!PED::IS_PED_IN_COMBAT(ped, player)))
-	//	.append("\ndoesPedHaveSidearm ").append(to_string(doesPedHaveSidearm(ped)))
-	//	.append("\n!IS_PED_RUNNING ").append(to_string(!AI::IS_PED_RUNNING(ped)))
-	//	.append("\n!IS_PED_SPRINTING ").append(to_string(!AI::IS_PED_SPRINTING(ped)))
-	//	.append("\n!IS_PED_FLEEING ").append(to_string(!PED::IS_PED_FLEEING(ped)))
-	//	.append("\n!IS_PED_CUFFED ").append(to_string(!AI::IS_PED_CUFFED(ped)))
-	//	.append("\nSH_DUELS_dueled ").append(to_string(DECORATOR::DECOR_GET_INT(ped, "SH_DUELS_dueled")))
-	//	.append("\n!IS_PED_IN_MELEE_COMBAT").append(to_string(!PED::IS_PED_IN_MELEE_COMBAT(ped)))
-	//	.append("\n!IS_PED_HOGTIED").append(to_string(!PED::_0x3AA24CCC0D451379(ped)))
-	//);
 
 	if (isPedLawman(ped) && !ScriptSettings::getBool("DuelLawmen"))
 	{

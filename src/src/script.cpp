@@ -20,10 +20,12 @@ DuelsEngine* duels;
 void Initialize()
 {
 	player = PLAYER::PLAYER_PED_ID();
+	PLAYER::SET_PLAYER_CONTROL(PLAYER::GET_PLAYER_INDEX(), 1, 0, 0);
+
 	DECORATOR::DECOR_REGISTER("SH_DUELS_dueled", 3);
 	DECORATOR::DECOR_REGISTER("SH_DUELS_duelable", 3);
 	initializeLogger();
-	log("Duels by Shtivi - 1.0.0");
+	log("Duels by Shtivi - 1.2.0");
 
 	ScriptSettings::load("Duels.ini", new SettingsMap {
 		{"EnableDuelCamera", 1},
@@ -41,6 +43,24 @@ void Initialize()
 
 	duels = new DuelsEngine();
 }
+
+
+
+
+struct eventData
+{
+	alignas(8) int promptType;
+	alignas(8) int unk1;
+	alignas(8) int targetEntityId;
+	alignas(8) int unk2;
+	alignas(8) int unk3;
+	alignas(8) int unk4	;
+	alignas(8) int unk5	;
+	alignas(8) int discoverableEntityTypeId	;
+	alignas(8) int unk6	;
+	alignas(8) int emoteHashBin	;
+};
+
 
 void main()
 {
@@ -80,20 +100,38 @@ void main()
 
 		if (debugOn)
 		{
+			int n = SCRIPT::GET_NUMBER_OF_EVENTS(0);
+			for (int i = 0; i < n; i++)
+			{
+				int eventType = SCRIPT::GET_EVENT_AT_INDEX(0, i);
+				if (eventType == GAMEPLAY::GET_HASH_KEY("EVENT_PLAYER_PROMPT_TRIGGERED"))
+				{
+					int eventSize = 10;
+					//int* arr = new int[eventSize];
+					int arr[10];
+					SCRIPT::GET_EVENT_DATA(0, i, arr, eventSize);
+					showSubtitle(to_string(arr[0]).c_str());
 
-			PLAYER::SET_MAX_WANTED_LEVEL(5);
-			//PLAYER::SET_EVERYONE_IGNORE_PLAYER(PLAYER::PLAYER_ID(), 1);
-			DECISIONEVENT::REMOVE_SHOCKING_EVENT_SPAWN_BLOCKING_AREAS();
+				}
 
-			//DECISIONEVENT::REMOVE_ALL_SHOCKING_EVENTS(0);
-			//DECISIONEVENT::SUPPRESS_SHOCKING_EVENTS_NEXT_FRAME();
+			}
 
 			Vector3 pos = playerPos();
 
+			debug(CONTROLS::_IS_INPUT_DISABLED(0));
 
-
-			//debug(DECISIONEVENT::IS_SHOCKING_EVENT_IN_SPHERE(0x93B7032F, pos.x, pos.y, pos.z, 60));
-			//debug(DECISIONEVENT::IS_SHOCKING_EVENT_IN_SPHERE(1811873798, pos.x, pos.y, pos.z, 60));
+			//Hash weap;
+			//WEAPON::GET_CURRENT_PED_WEAPON(player, &weap, 0, 0, 0);
+			//if (weap == GAMEPLAY::GET_HASH_KEY("weapon_revolver_lemat") && !PED::IS_PED_RELOADING(player))
+			//{
+			//	int ammo;
+			//	//WEAPON::GET_AMMO_IN_CLIP(player, GAMEPLAY::GET_HASH_KEY("weapon_revolver_lemat"), &ammo);
+			//	int* i = new int;
+			//	*i = 0;
+			//	WEAPON::_0x678F00858980F516(player, (Any*)&ammo, (Any*)i);
+			//	debug(ammo);
+			//	//debug(WEAPON::GET_AMMO_IN_PED_WEAPON(player, GAMEPLAY::GET_HASH_KEY("weapon_revolver_lemat")));
+			//}
 
 			Hash weaponHash;
 			WEAPON::GET_CURRENT_PED_WEAPON(player, &weaponHash, 0, 0, 0);
@@ -101,15 +139,10 @@ void main()
 				Entity e;
 				if (PLAYER::GET_ENTITY_PLAYER_IS_FREE_AIMING_AT(PLAYER::PLAYER_ID(), &e) /*&& distanceBetweenEntities(player, e) < 20*/) {
 					if (IsKeyJustUp(VK_KEY_Z)) {
-						/*log(to_string((int)ENTITY::GET_ENTITY_MODEL(e)));
-						log(to_string(entityPos(e)));
-						showSubtitle(to_string(entityPos(e)));*/
-					int bone;
-					PED::GET_PED_LAST_DAMAGE_BONE(e, &bone);
-					PED::_0xFFD54D9FE71B966A(e, 2, 26043, -.5, -.05, 0, ENTITY::GET_ENTITY_HEADING(e), 5000, -1, 1);
+						int bone;
+						PED::GET_PED_LAST_DAMAGE_BONE(e, &bone);
+						PED::_0xFFD54D9FE71B966A(e, 2, 26043, -.5, -.05, 0, ENTITY::GET_ENTITY_HEADING(e), 5000, -1, 1);
 					}
-					//debug(PED::IS_PED_RESPONDING_TO_EVENT(e, -587661767));
-					//debug((int)ENTITY::GET_ENTITY_MODEL(e));
 				}
 				else
 				{
@@ -117,25 +150,11 @@ void main()
 			}
 			else
 			{
-				/*CONTROLS::_SET_CONTROL_NORMAL(0, GAMEPLAY::GET_HASH_KEY("INPUT_INTERACT_LOCKON"), 1);
-				CONTROLS::_SET_CONTROL_NORMAL(0, GAMEPLAY::GET_HASH_KEY("INPUT_ATTACK"), 1);*/
-
 				Entity targetEntity;
 				if (PLAYER::GET_PLAYER_TARGET_ENTITY(PLAYER::PLAYER_ID(), &targetEntity))
 				{
 					if (IsKeyJustUp(VK_KEY_Z)) {
-						/*log(to_string(ENTITY::GET_ENTITY_HEADING(targetEntity)));
-						log(to_string((int)ENTITY::GET_ENTITY_MODEL(targetEntity)));*/
-						//log((int)PED::GET_PED_RELATIONSHIP_GROUP_HASH(targetEntity));
-						//showSubtitle(to_string((int)PED::GET_PED_RELATIONSHIP_GROUP_HASH(targetEntity)).c_str());
 					}
-					//debug(PED::IS_PED_RESPONDING_TO_EVENT(targetEntity, -587661767));
-					//debug(PED::_0xC8D523BF5BBD3808(targetEntity, 0x12AB59DE));
-
-					//debug((int)PED::_0xEC6B59BE445FEC51(targetEntity));
-					//debug(PED::GET_PED_COMBAT_MOVEMENT(targetEntity));
-					//debug(PED::GET_PED_CONFIG_FLAG(targetEntity, 347, 1));
-					//debug(PED::GET_PED_ACCURACY(targetEntity));
 				}
 				else
 				{
@@ -150,8 +169,8 @@ void main()
 			}
 
 
-			//PURSUIT::CLEAR_CURRENT_PURSUIT();
-			//PLAYER::CLEAR_PLAYER_WANTED_LEVEL(PLAYER::PLAYER_ID());
+			PURSUIT::CLEAR_CURRENT_PURSUIT();
+			PLAYER::CLEAR_PLAYER_WANTED_LEVEL(PLAYER::PLAYER_ID());
 			//PLAYER::SET_EVERYONE_IGNORE_PLAYER(PLAYER::PLAYER_ID(), 0);
 
 			if (IsKeyJustUp(VK_KEY_X))
@@ -176,44 +195,18 @@ void main()
 			if (IsKeyJustUp(VK_KEY_Z))
 			{
 				Ped ped = createPed("g_m_o_uniexconfeds_01", playerPos() + getForwardVector(player) * rndInt(5, 10), 180);
-				//PED::SET_PED_CONFIG_FLAG(ped, 138, 1); // kill in one shot
-				//PED::SET_PED_CONFIG_FLAG(ped, 6, 1); // PCF_DontInfluenceWantedLevel
-
-				//showSubtitle(to_string(PED::GET_PED_COMBAT_MOVEMENT(ped)).c_str());
-				//showSubtitle(to_string(PED::GET_PED_CONFIG_FLAG(ped, 460, 0)).c_str());
-				/*WAIT(1000);
-				playAmbientSpeech(ped, "IGNORING_YOU");*/
-
 				//PED::SET_BLOCKING_OF_NON_TEMPORARY_EVENTS(ped, true);
+				//ENTITY::SET_PED_AS_NO_LONGER_NEEDED(&ped);
 
-
-				ENTITY::SET_PED_AS_NO_LONGER_NEEDED(&ped);
-
-				// 0xEC6681EB EVENT_SHOCKING_AUDIBLE_REACTION 
-
-
-				//while (!ENTITY::IS_ENTITY_DEAD(ped))
+				//WAIT(500);
+				//while (STREAMING::HAS_ANIM_DICT_LOADED("MINI_DUEL@PLAYER@BASE"))
 				//{
-				//	debug("killit");
-				//	WAIT(0);
+				//	STREAMING::REQUEST_ANIM_DICT("MINI_DUEL@PLAYER@BASE");
+				//	WAIT(10);
 				//}
 
-				//	int bone;
-				//	PED::GET_PED_LAST_DAMAGE_BONE(ped, &bone);
-				//	if (bone == 21030)
-				//	{
-				//		showSubtitle("headshot");
-				//	}
-
-				////UI::DISPLAY_HUD(true);
-				//Ped ped = createPed("A_M_M_BynRoughTravellers_01", playerPos() + getForwardVector(player) * rndInt(5, 10), 180);
-				//Vector3 pos = entityPos(ped);
-				////DECISIONEVENT::ADD_SHOCKING_EVENT_AT_POSITION(0x2CA3408A, pos.x, pos.y, pos.z, 0, 30, 35, -1, 20, 1127481344, 0);
-				//DECISIONEVENT::ADD_SHOCKING_EVENT_FOR_ENTITY(2507051957, player, 0, 30, 35, -1, 20, 1127481344, 0, 0, -1, -1);
-				//WAIT(500);
-				//ENTITY::SET_PED_AS_NO_LONGER_NEEDED(&ped);
-				////WAIT(5000);
-				////UI::DISPLAY_HUD(false);
+				//Vector3 pos = playerPos();
+				//AI::_0x5D5B0D5BC3626E5A(player, -1910137495, GAMEPLAY::GET_HASH_KEY("weapon_revolver_lemat"), ped, 0.22, 0, pos.x, pos.y, pos.z, 180, 1);
 			}
 
 
@@ -224,10 +217,11 @@ void main()
 
 			if (IsKeyJustUp(VK_KEY_K))
 			{
+				PURSUIT::_0xDE5FAA741A781F73(PLAYER::GET_PLAYER_INDEX(), 0);
 			}
 		}
 
-		if (false && IsKeyJustUp(VK_F2))
+		if (true && IsKeyJustUp(VK_F2))
 		{
 			setDebugMode(!isDebugMode());
 		}

@@ -17,56 +17,13 @@ void giveWeaponToPed(Ped ped, WeaponHash hash, int ammo, bool equipNow)
 
 void pedEquipBestWeapon(Ped ped)
 {
-	//int iWeapon = rand() % 2 + 1;
-	//if (PED::IS_PED_MODEL(ped, 2873015698) && weapon != true)
-	//{
-	//	if (iWeapon == 1)
-	//	{
-	//		WEAPON::SET_CURRENT_PED_WEAPON(ped, WEAPON::GET_BEST_PED_WEAPON(ped, 0, 0), true, 0, false, false);
-	//	}
-	//	else if (iWeapon == 2)
-	//	{
-	//		giveWeaponToPed(ped, WeaponBow, 0x38E6F55F, true);
-	//		WEAPON::REMOVE_WEAPON_FROM_PED(ped, WEAPON::GET_BEST_PED_WEAPON(ped, 0, 0), false, 0);
-	//	}
-	//	weapon = true;
-	//}
-	//else if ((PED::IS_PED_MODEL(ped, 1057570823) || PED::IS_PED_MODEL(ped, 3939581308) || PED::IS_PED_MODEL(ped, 3666010779) || PED::IS_PED_MODEL(ped, 3325147641) || PED::IS_PED_MODEL(ped, 3204687205) || PED::IS_PED_MODEL(ped, 347599949) || PED::IS_PED_MODEL(ped, 50483426)) && weapon != true)
-	//{
-	//	if (iWeapon == 1)
-	//	{
-	//		WEAPON::SET_CURRENT_PED_WEAPON(ped, WEAPON::GET_BEST_PED_WEAPON(ped, 0, 0), true, 0, false, false);
-	//	}
-	//	else if (iWeapon == 2)
-	//	{
-	//		giveWeaponToPed(ped, RevolverSchofield, 0x64356159, true);
-	//		WEAPON::REMOVE_WEAPON_FROM_PED(ped, WEAPON::GET_BEST_PED_WEAPON(ped, 0, 0), false, 0);
-	//	}
-	//	weapon = true;
-	//}
-	//else if (PED::IS_PED_MODEL(ped, 265884691) && weapon != true)
-	//{
-	//	if (iWeapon == 1)
-	//	{
-	//		giveWeaponToPed(ped, RepeaterWinchester, 0xDC8FB3E9, true);
-	//	}
-	//	else if (iWeapon == 2)
-	//	{
-	//		giveWeaponToPed(ped, RevolverSchofield, 0x64356159, true);
-	//	}
-	//	weapon = true;
-	//}
-	//else
-	//{
-	//	WEAPON::SET_CURRENT_PED_WEAPON(ped, WEAPON::GET_BEST_PED_WEAPON(ped, 0, 0), true, 0, false, false);
-	//}
 	WEAPON::SET_CURRENT_PED_WEAPON(ped, WEAPON::GET_BEST_PED_WEAPON(ped, 0, 0), true, 0, false, false);
 }
 
-Hash getPedEquipedWeapon(Ped ped)
+Hash getPedEquipedWeapon(Ped ped, WeaponAttachPoint attachPoint)
 {
 	Hash weaponHash;
-	WEAPON::GET_CURRENT_PED_WEAPON(ped, &weaponHash, 0, 0, 0);
+	WEAPON::GET_CURRENT_PED_WEAPON(ped, &weaponHash, 0, (int)attachPoint, 0);
 	return weaponHash;
 }
 
