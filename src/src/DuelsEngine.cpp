@@ -15,7 +15,6 @@ bool isPedDuelable(Ped ped)
 	bool allow =
 		!ENTITY::IS_ENTITY_DEAD(ped) &&
 		PED::IS_PED_HUMAN(ped) &&
-		//!ENTITY::IS_ENTITY_A_MISSION_ENTITY(ped) &&
 		PED::IS_PED_ON_FOOT(ped) &&
 		!PED::IS_PED_IN_COMBAT(ped, player) &&
 		doesPedHaveSidearm(ped) &&
@@ -43,6 +42,11 @@ DuelsEngine::DuelsEngine()
 
 void DuelsEngine::update()
 {
+	if (GAMEPLAY::GET_MISSION_FLAG())
+	{
+		return;
+	}
+
 	if (!duel)
 	{
 		Entity targetEntity = getPlayerTargetEntity();
@@ -50,13 +54,13 @@ void DuelsEngine::update()
 
 		if (targetEntity)
 		{
-			if (DECISIONEVENT::IS_SHOCKING_EVENT_IN_SPHERE(0x73221D75 /* EVENT_SHOCKING_SEEN_INSULT */ , playerCoords.x, playerCoords.y, playerCoords.z, 10))
+			if (DECISIONEVENT::IS_SHOCKING_EVENT_IN_SPHERE(0x73221D75 /* EVENT_SHOCKING_SEEN_INSULT */, playerCoords.x, playerCoords.y, playerCoords.z, 10))
 			{
 				DECORATOR::DECOR_SET_INT(targetEntity, "SH_DUELS_duelable", 1);
 			}
 
 			challengePrompt->setIsEnabled(!AUDIO::IS_AMBIENT_SPEECH_PLAYING(player));
-			
+
 			if (isPedDuelable(targetEntity))
 			{
 				challengePrompt->show();

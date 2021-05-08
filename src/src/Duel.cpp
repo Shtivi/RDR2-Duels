@@ -152,8 +152,9 @@ void Duel::update()
 		}
 		case DuelStage::PostDuel:
 		{
-			PURSUIT::_0xDE5FAA741A781F73(PLAYER::GET_PLAYER_INDEX(), 0);
-			if (drawTimer.getElapsedSeconds() == 3)
+			GameCamera::setScriptCamsRendering(false, true, 500);
+
+			if (drawTimer.getElapsedSeconds() == 5)
 			{
 				setStage(DuelStage::Combat);
 				return;
@@ -161,7 +162,14 @@ void Duel::update()
 
 			if (ENTITY::IS_ENTITY_DEAD(challengedPed))
 			{
-				onDuelWon();
+				setStage(DuelStage::PlayerWon);
+			} 
+			else if (getPedEquipedWeapon(challengedPed) == WeaponHash::Unarmed && !PED::IS_PED_FATALLY_INJURED(challengedPed))
+			{
+				Conversation conv = Conversation();
+				conv.addLine(challengedPed, "GET_AWAY_FROM_ME");
+				conv.play();
+				AI::_0xFD45175A6DFD7CE9(challengedPed, player, 3, 0, 150.0f, 45000, 0);
 				setStage(DuelStage::PlayerWon);
 			}
 
@@ -205,6 +213,10 @@ void Duel::setStage(DuelStage stage)
 		else if (stage == DuelStage::Declined)
 		{
 			onOpponentDeclined();
+		}
+		else if (stage == DuelStage::PlayerWon)
+		{
+			onDuelWon();
 		}
 		else if (stage == DuelStage::PostDuel)
 		{
@@ -366,7 +378,7 @@ void Duel::enterDrawMode()
 
 	Vector3 pos = playerPos();
 	AI::CLEAR_PED_TASKS(player, 0, 0);
-	AI::_0x5D5B0D5BC3626E5A(player, GAMEPLAY::GET_HASH_KEY("idle_a"), getPedEquipedWeapon(player, WeaponAttachPoint::WEAPON_ATTACH_POINT_PISTOL_R), challengedPed, 0.22, 0, pos.x, pos.y, pos.z, 180, 1);
+	AI::_0x5D5B0D5BC3626E5A(player, GAMEPLAY::GET_HASH_KEY("idle_a"), getPedEquipedWeapon(player, WeaponAttachPoint::WEAPON_ATTACH_POINT_PISTOL_R), challengedPed, 0.22, 1, pos.x, pos.y, pos.z, 180, 1); // Task_duel
 
 	WEAPON::SET_CURRENT_PED_WEAPON(challengedPed, WeaponHash::Unarmed, true, 0, 0, 0);
 	Hash opponentSidearmWeapon = getPedEquipedWeapon(challengedPed, WeaponAttachPoint::WEAPON_ATTACH_POINT_PISTOL_R);
