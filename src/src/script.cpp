@@ -81,6 +81,8 @@ void main()
 
 		if (debugOn)
 		{
+			//debug(PLAYER::GET_PLAYER_CURRENT_STEALTH_NOISE(PLAYER::PLAYER_ID()));
+
 			int n = SCRIPT::GET_NUMBER_OF_EVENTS(0);
 			for (int i = 0; i < n; i++)
 			{
@@ -117,11 +119,13 @@ void main()
 				Entity e;
 				if (PLAYER::GET_ENTITY_PLAYER_IS_FREE_AIMING_AT(PLAYER::PLAYER_ID(), &e) /*&& distanceBetweenEntities(player, e) < 20*/) {
 					if (IsKeyJustUp(VK_KEY_Z)) {
-						int bone;
-						PED::GET_PED_LAST_DAMAGE_BONE(e, &bone);
-						PED::_0xFFD54D9FE71B966A(e, 2, 26043, -.5, -.05, 0, ENTITY::GET_ENTITY_HEADING(e), 5000, -1, 1);
+						//playEntityAnimation(e, "still_feedfire", "script_story@gry1@ig@ig_1_workerloopworker_b", -1);
+						//playEntityAnimation(e, "put_in_still_still", "script_re@moonshine_camp@player_put_in_herbs", 2000);
+						GRAPHICS::_0x6EC2A67962296F49(e, 255, 255, 255);
+						//GRAPHICS::_0xAB72C67163DC4DB4(e, 20);
+
 					}
-					//debug((int)ENTITY::GET_ENTITY_MODEL(e));
+					debug((int)ENTITY::GET_ENTITY_MODEL(e));
 				}
 				else
 				{
@@ -173,15 +177,47 @@ void main()
 
 			if (IsKeyJustUp(VK_KEY_Z))
 			{
-				Vector3 pos = playerPos() + getForwardVector(player) * rndInt(5, 10);
-				Ped ped = createPed("g_m_o_uniexconfeds_01", pos, 180);
-				//PED::SET_BLOCKING_OF_NON_TEMPORARY_EVENTS(ped, true);
-				//playAnimation(ped, "dismantle", "mech_pickup@weapons@dismantle@long_arm", 3000);
-				//PED::SET_PED_CONFIG_FLAG(ped, 4, true);
-				ENTITY::SET_PED_AS_NO_LONGER_NEEDED(&ped);
+				Vector3 pos = playerPos() + getForwardVector(player) * 3;
+				/*
+				Ped ped = createPed("u_m_m_lnsworker_01", pos, 180);
+				WAIT(500);
+				Entity bucket = createProp("p_basinwater01x", entityPos(ped) + getForwardVector(ped) * 0.5);
+				Object seq;
+				AI::OPEN_SEQUENCE_TASK(&seq);
+				playAnimation(0, "idle_a", "amb_misc@world_human_wash_face_bucket@ground@male_a@idle_a", -1, 1, -8);
+				playAnimation(0, "idle_c", "amb_misc@world_human_wash_face_bucket@ground@male_a@idle_a", -1, 8, -8);
+				playAnimation(0, "idle_b", "amb_misc@world_human_wash_face_bucket@ground@male_a@idle_a", -1, 8, -1);
+				AI::CLOSE_SEQUENCE_TASK(seq);
+				AI::TASK_PERFORM_SEQUENCE(ped, seq);
 
-				//PED::SET_PED_SPHERE_DEFENSIVE_AREA(ped, pos.x, pos.y, pos.z, 20, 1, 0, 0);
-				//AI::TASK_COMBAT_HATED_TARGETS_IN_AREA(ped, pos.x, pos.y, pos.z, 3, 0, 0);
+				playEntityAnimation(bucket, "idle_a_bucket", "amb_misc@world_human_wash_face_bucket@ground@male_a@idle_a", -1);
+				*/
+
+
+				// -1118946704 bag
+				// 822715387 saddle
+				//  -602889539 - body
+				// -706113014 body
+				// -421224518 - body
+				// s_moonshinesack02x
+				//OBJECT::CREATE_PORTABLE_PICKUP(GAMEPLAY::GET_HASH_KEY("PICKUP_PORTABLE_PACKAGE"), pos.x, pos.y, pos.z, true, GAMEPLAY::GET_HASH_KEY("p_floursack03x"));
+
+				//Pickup pickup = OBJECT::CREATE_PICKUP(GAMEPLAY::GET_HASH_KEY("PICKUP_PORTABLE_PACKAGE"), pos.x, pos.y, pos.z, 0, 0, 0, GAMEPLAY::GET_HASH_KEY("s_moneysackbig01x"), 0, 0);
+				//OBJECT::PLACE_OBJECT_ON_GROUND_PROPERLY(OBJECT::GET_PICKUP_OBJECT(pickup), true);
+
+				int prop = createProp("s_moonshinesack02x", pos);
+				//showSubtitle(to_string(ENTITY::_0x34F008A7E48C496B(prop, 3)).c_str());
+				//ENTITY::_0x18FF3110CF47115D(prop, 12, true);
+				//ENTITY::_0x18FF3110CF47115D(prop, 3, true);
+				//ENTITY::_0x18FF3110CF47115D(prop, 9, true);
+				AI::_0xF0B4F759F35CC7F5(prop, -421224518, 0, 6, 0);
+				showSubtitle(AI::_0x0CCFE72B43C9CF96(prop) ? "carriable" : "not carriable");
+				//AI::_0xF0B4F759F35CC7F5(prop, 1959114253, player, 7, 512);
+				//AI::_0xF0B4F759F35CC7F5(prop, -421224518, player, 1, 0);
+
+				//OBJECT::CREATE_PICKUP_ROTATE(GAMEPLAY::GET_HASH_KEY("PICKUP_PORTABLE_PACKAGE"), pos.x, pos.y, pos.z, 0.0, 0.0, 0.0, 8, 1, 24, true, GAMEPLAY::GET_HASH_KEY("p_cs_pelt_large"), 0, 0);
+
+
 
 
 				//Vector3 pos = playerPos();
@@ -191,8 +227,12 @@ void main()
 
 			if (IsKeyJustUp(VK_F3))
 			{
+				// pg_moonshinecampgroup01x
+				// pg_re_moonshinecampgroup02x
+				// pg_re_davisboysgang01x
+
 				Vector3 pos = playerPos() + getForwardVector(player) * 10;
-				char* propsetName = "pg_ambient_campfire02xb";
+				char* propsetName = "pg_re_davisboysgang01x";
 				int propsetHash = GAMEPLAY::GET_HASH_KEY(propsetName);
 				PROP::_0xF3DE57A46D5585E9(propsetHash);
 				int i = 0;
@@ -206,6 +246,25 @@ void main()
 				if (PROP::_0x48A88FC684C55FDC(propsetHash))
 				{
 					PROP::_0x899C97A1CCE7D483(propsetHash, pos.x, pos.y, pos.z, 0, 60, 1200, false, true);
+					WAIT(500);
+
+					Ped ped = createPed("u_m_m_lnsworker_01", playerPos() + getForwardVector(player) * rndInt(5, 10), 180);
+					Entity still = OBJECT::GET_CLOSEST_OBJECT_OF_TYPE(pos.x, pos.y, pos.z, 30, GAMEPLAY::GET_HASH_KEY("p_still02x"), 1, 1, 1);
+					//createBlip(still, BLIP_STYLE_WHITE_DOT);
+
+					//Vector3 stillCoords = entityPos(still);
+					//Object seq;
+					//AI::OPEN_SEQUENCE_TASK(&seq);
+					//AI::TASK_FOLLOW_NAV_MESH_TO_COORD(0, stillCoords.x, stillCoords.y, stillCoords.z, 1, -1, 0.2, 1, 0);
+					//AI::TASK_TURN_PED_TO_FACE_ENTITY(0, still, 1000, 0, 0, 0);
+					//playAnimation(0, "put_in_still", "script_re@moonshine_camp@player_put_in_herbs");
+					//AI::CLOSE_SEQUENCE_TASK(seq);
+					//AI::TASK_PERFORM_SEQUENCE(ped, seq);
+					//while (AI::GET_SEQUENCE_PROGRESS(ped) < 2)
+					//{
+					//	WAIT(0);
+					//}
+					//playEntityAnimation(still, "put_in_still_still", "script_re@moonshine_camp@player_put_in_herbs", 2000);
 				}
 				else
 				{
@@ -217,44 +276,21 @@ void main()
 
 			if (IsKeyJustUp(VK_KEY_K))
 			{
-				struct {
-					alignas(8) int f_0;
-					alignas(8) const char* f_1;
-					alignas(8) const char* f_2;
-					alignas(8) int f_3;
-					alignas(8) int f_4;
-					alignas(8) int f_5;
-					alignas(8) int f_6;
-				} Var13;
+				// Wagon5 + LoadsOfMoonshine
+				Vehicle veh = createVehicle(VehicleHash::Wagon05X, playerPos() + getForwardVector(player) * 5, 0);
+				//Vehicle veh = createVehicle(GAMEPLAY::GET_HASH_KEY("utilliwag"), playerPos() + getForwardVector(player) * 5, 0);
+				setVehicleCargo(veh, VehicleCargoHash::TonsOfMoonshine);
+				PROP::_0xC0F0417A90402742(veh, GAMEPLAY::GET_HASH_KEY("pg_teamster_wagon05x_lightupgrade3"));
+				
+				for (int i = 0; i <= 5; i++)
+				{
 
-				struct {
-					alignas(8) int f_0;
-					alignas(8) const char* f_1;
-					alignas(8) const char* f_2;
-					alignas(8) int f_3;
-				} Var0;
+					VEHICLE::_0xF89D82A0582E46ED (veh, i);
+					showSubtitle(to_string(i).c_str());
+					WAIT(1000);
+				}
 
-				Var0.f_0 = -2;
-				Var0.f_1 = "Honor_Display_Sounds";
-				Var0.f_2 = "Honor_Increase_Big";
-				Var0.f_3 = 0;
-				Var0.f_0 = 450;
-				const char* sParam0 = UI::_CREATE_VAR_STRING(2, "PLAYER_HONOR_CHANGE_POS");
-				const char* sParam1 = "ITEMTYPE_TEXTURES";
-				int iParam2 = GAMEPLAY::GET_HASH_KEY("TRANSACTION_HONOR_GOOD");
-
-				Var13.f_1 = sParam0;
-				Var13.f_2 = sParam1;
-				Var13.f_3 = iParam2;
-				Var13.f_4 = 1;
-				Var13.f_5 = 109029619;
-				Var13.f_6 = 0;
-				UIUNK::_0xB249EBCB30DD88E0((Any*)&Var0, (Any*)&Var13, 1);
-				DUMMY2::_0x74BCCEB233AD95B2(-466562563, GAMEPLAY::GET_HASH_KEY((char*)sParam0));
-				DUMMY2::_0x74BCCEB233AD95B2(1885309238, GAMEPLAY::GET_HASH_KEY((char*)sParam1));
-				DUMMY2::_0x74BCCEB233AD95B2(-826961056, iParam2);
-				//makeHonorEffect(true);
-
+				//createProp("p_basinwater01x", playerPos() + getForwardVector(player) * 3);
 
 			}
 		}
