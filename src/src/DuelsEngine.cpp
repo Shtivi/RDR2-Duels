@@ -26,7 +26,7 @@ bool isPedDuelable(Ped ped)
 	bool allow =
 		!ENTITY::IS_ENTITY_DEAD(ped) &&
 		PED::IS_PED_HUMAN(ped) &&
-		PED::IS_PED_ON_FOOT(ped) &&
+		//PED::IS_PED_ON_FOOT(ped) &&
 		!PED::IS_PED_IN_COMBAT(ped, player) &&
 		doesPedHaveSidearm(ped) &&
 		!AI::IS_PED_RUNNING(ped) &&

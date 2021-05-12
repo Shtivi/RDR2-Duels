@@ -341,9 +341,18 @@ void Duel::onPositioningInitiated()
 	Object seq;
 	AI::OPEN_SEQUENCE_TASK(&seq);
 
+	if (PED::IS_PED_ON_MOUNT(challengedPed))
+	{
+		AI::_0x48E92D3DDE23C23A(0, 0, 0, 0, 0, 0); // TASK_DISMOUNT_ANIMAL
+	}
+	else if (PED::IS_PED_IN_ANY_VEHICLE(challengedPed, false))
+	{
+		AI::TASK_LEAVE_VEHICLE(0, PED::GET_VEHICLE_PED_IS_USING(challengedPed), 0, 0);
+	}
+
+	AI::TASK_LOOK_AT_ENTITY(0, player, -1, 0, 0, 0);
 	AI::TASK_FOLLOW_NAV_MESH_TO_COORD(0, pos2.first.x, pos2.first.y, pos2.first.z, 1, -1, 0.8f, 1, 0);
 	AI::TASK_TURN_PED_TO_FACE_ENTITY(0, player, 2000, 0, 0, 0);
-	AI::TASK_LOOK_AT_ENTITY(0, player, -1, 0, 51, 0);
 	if (PED::_0x50F124E6EF188B22(challengedPed))
 	{
 		playAnimation(0, "base_drunk", "mini_duel@challenger@drunk", -1, 1, -8, 1);
@@ -359,12 +368,12 @@ void Duel::onPositioningInitiated()
 
 bool Duel::isPositioningCompleted()
 {
-	if (AI::GET_SEQUENCE_PROGRESS(challengedPed) < 2)
+	if (AI::GET_SEQUENCE_PROGRESS(challengedPed) < 3)
 	{
 		return false;
 	}
 
-	if (distance(playerPos(), pos1.first) > 1.5 || ENTITY::GET_ENTITY_SPEED(player) > 0)
+	if (distance(playerPos(), pos1.first) > 1.5 || ENTITY::GET_ENTITY_SPEED(player) > 0 || !PED::IS_PED_ON_FOOT(player))
 	{
 		return false;
 	}

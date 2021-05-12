@@ -156,14 +156,22 @@ void main()
 
 			if (IsKeyJustUp(VK_KEY_Z))
 			{
-				Ped ped = createPed("a_m_m_bivroughtravellers_01", playerPos() + getForwardVector(player) * 5);
-				ENTITY::SET_ENTITY_AS_NO_LONGER_NEEDED(&ped);
+				//Ped horse = createAmbientHorse(playerPos() + getForwardVector(player) * 5);
+				//Ped ped = createPedOnHorse("a_m_m_bivroughtravellers_01", horse, -1);
+				//WAIT(2000);
+				//AI::_0x48E92D3DDE23C23A(ped, 0, 0, 0, 0, 0);
+				//ENTITY::SET_ENTITY_AS_NO_LONGER_NEEDED(&ped);
+
+				Vehicle veh = createVehicle(VehicleHash::Utilliwag, playerPos() + getForwardVector(player) * 10);
+				createPed("a_m_m_bivroughtravellers_01", veh, -1);
 
 			}
 
 
 			if (IsKeyJustUp(VK_F3))
 			{
+				Ped ped = createPed("a_m_m_bivroughtravellers_01", playerPos() + getForwardVector(player) * 5);
+				ENTITY::SET_ENTITY_AS_NO_LONGER_NEEDED(&ped);
 			}
 
 			if (IsKeyJustUp(VK_KEY_K))
