@@ -85,6 +85,13 @@ void Duel::update()
 				onPositioningInitiated();
 			}
 
+			if (ScriptSettings::getBool("FleeHorseWhenTooClose") && 
+				distance(player, getPlayerPrimaryHorse()) < 10 && 
+				!PED::IS_PED_FLEEING(getPlayerPrimaryHorse()))
+			{
+				playerFleeHorse(getPlayerPrimaryHorse());
+			}
+
 			if (isPositioningCompleted())
 			{
 				log("duel psotioning completed");

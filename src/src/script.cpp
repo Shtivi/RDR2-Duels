@@ -36,7 +36,8 @@ void Initialize()
 		{"OneShotDeath", 0},
 		{"NeverRefuseDuels", 0},
 		{"AggressivenessTendencyFactor", 0},
-		{"AntagonizeFirst", 1}
+		{"AntagonizeFirst", 1},
+		{"FleeHorseWhenTooClose", 1}
 	});
 
 	duels = new DuelsEngine();
@@ -81,6 +82,8 @@ void main()
 
 		if (debugOn)
 		{
+			Player playerId = PLAYER::PLAYER_ID();
+			PLAYER::SET_ALL_RANDOM_PEDS_FLEE((Player*)player, false);
 			int n = SCRIPT::GET_NUMBER_OF_EVENTS(0);
 			for (int i = 0; i < n; i++)
 			{
@@ -127,7 +130,6 @@ void main()
 				}
 				else
 				{
-					debug((int)PED::GET_PED_RELATIONSHIP_GROUP_HASH(player));
 				}
 			}
 
@@ -144,7 +146,7 @@ void main()
 
 			if (IsKeyJustUp(VK_KEY_X))
 			{
-
+				AI::_0xFD45175A6DFD7CE9(PLAYER::_0xB48050D326E9A2F3(PLAYER::PLAYER_ID()), player, 3, 0, 25, 10000, 0);
 			}
 
 			if (IsKeyJustUp(VK_F1))
@@ -169,7 +171,8 @@ void main()
 				//ENTITY::SET_ENTITY_AS_NO_LONGER_NEEDED(&ped);
 
 				Vehicle veh = createVehicle(VehicleHash::Utilliwag, playerPos() + getForwardVector(player) * 10);
-				createPed("a_m_m_bivroughtravellers_01", veh, -1);
+				Ped ped = createPed("a_m_m_bivroughtravellers_01", veh, -1);
+				ENTITY::SET_ENTITY_AS_NO_LONGER_NEEDED(&ped);
 
 			}
 
@@ -182,6 +185,7 @@ void main()
 
 			if (IsKeyJustUp(VK_KEY_K))
 			{
+				playerFleeHorse(getPlayerPrimaryHorse());
 			}
 		}
 

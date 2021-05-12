@@ -59,3 +59,34 @@ void makeHonorEffect(bool positive, bool big)
 	DUMMY2::_0x74BCCEB233AD95B2(1885309238, GAMEPLAY::GET_HASH_KEY((char*)sParam1));
 	DUMMY2::_0x74BCCEB233AD95B2(-826961056, iParam2);
 }
+
+Ped getPlayerPrimaryHorse()
+{
+	return PLAYER::_0xB48050D326E9A2F3(PLAYER::PLAYER_ID());
+}
+
+void playerFleeHorse(Ped horse, bool quiet)
+{
+	if (!ENTITY::DOES_ENTITY_EXIST(horse) || 
+		!PED::_0x772A1969F649E902(ENTITY::GET_ENTITY_MODEL(horse)) /*_IS_THIS_MODEL_A_HORSE*/)
+	{
+		return;
+	}
+
+	const char* speech = NULL;
+	if (quiet)
+	{
+		speech = "HORSE_RUN_AWAY_QUIET";
+	}
+	else if (PED::IS_PED_MALE(horse))
+	{
+		speech = "HORSE_RUN_AWAY_MALE";
+	} 
+	else
+	{
+		speech = "HORSE_RUN_AWAY_FEMALE";
+	}
+
+	playAmbientSpeech(player, (char*)speech);
+	AI::_0xFD45175A6DFD7CE9(horse, player, 3, 0, 25, 10000, 0);
+}
