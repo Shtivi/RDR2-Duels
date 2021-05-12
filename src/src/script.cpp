@@ -116,12 +116,18 @@ void main()
 				Entity targetEntity;
 				if (PLAYER::GET_PLAYER_TARGET_ENTITY(PLAYER::PLAYER_ID(), &targetEntity))
 				{
+					//debug((int)PED::GET_PED_RELATIONSHIP_GROUP_HASH(targetEntity));
+					//debug(PED::GET_RELATIONSHIP_BETWEEN_GROUPS(
+					//	PED::GET_PED_RELATIONSHIP_GROUP_HASH(player),
+					//	PED::GET_PED_RELATIONSHIP_GROUP_HASH(targetEntity)
+					//));
+					debug(PED::GET_PED_RELATIONSHIP_GROUP_HASH(targetEntity) == GAMEPLAY::GET_HASH_KEY("REL_GANG_DUTCHS"));
 					if (IsKeyJustUp(VK_KEY_Z)) {
 					}
 				}
 				else
 				{
-
+					debug((int)PED::GET_PED_RELATIONSHIP_GROUP_HASH(player));
 				}
 			}
 

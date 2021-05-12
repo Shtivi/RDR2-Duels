@@ -26,11 +26,12 @@ bool isPedDuelable(Ped ped)
 	bool allow =
 		!ENTITY::IS_ENTITY_DEAD(ped) &&
 		PED::IS_PED_HUMAN(ped) &&
-		//PED::IS_PED_ON_FOOT(ped) &&
+		!PED::IS_PED_IN_ANY_TRAIN(ped) &&
 		!PED::IS_PED_IN_COMBAT(ped, player) &&
 		doesPedHaveSidearm(ped) &&
 		!AI::IS_PED_RUNNING(ped) &&
 		!AI::IS_PED_SPRINTING(ped) &&
+		PED::GET_PED_RELATIONSHIP_GROUP_HASH(ped) != GAMEPLAY::GET_HASH_KEY("REL_GANG_DUTCHS") && 
 		!PED::IS_PED_FLEEING(ped) &&
 		!AI::IS_PED_CUFFED(ped) &&
 		DECORATOR::DECOR_GET_INT(ped, "SH_DUELS_dueled") != 1 &&
