@@ -4,6 +4,17 @@ const float DuelDistance = 12;
 
 Prompt* challengePrompt;
 Duel* duel;
+vector<const char*> animDicts = {
+	"MINI_DUEL@PLAYER@BASE",
+	"MINI_DUEL@REPOSITION@BASE",
+	"MINI_DUEL@PLAYER@ACTION",
+	"MINI_DUEL@PLAYER@NORMAL",
+	"MINI_DUEL@PLAYER@MISSION@MUD4",
+	"MINI_DUEL@CHALLENGER@BASE",
+	"MINI_DUEL@PLAYER@MISSION@IND3@IG9",
+	"MINI_DUEL@CHALLENGER@RC@RCAL@RC3_IG1",
+
+};
 
 bool isPedDuelable(Ped ped)
 {
@@ -38,6 +49,7 @@ DuelsEngine::DuelsEngine()
 {
 	challengePrompt = new Prompt("Duel", GAMEPLAY::GET_HASH_KEY("INPUT_INTERACT_OPTION1"), PromptMode::Standard);
 	challengePrompt->hide();
+	DuelsEngine::loadAnimDicts();
 }
 
 void DuelsEngine::update()
@@ -123,4 +135,30 @@ DuelChallengeReaction DuelsEngine::generatePedDuelReaction(Ped candidate)
 	{
 		return DuelChallengeReaction::Decline;
 	}
+}
+
+void DuelsEngine::loadAnimDicts()
+{
+	while (!hasAnimDictsLoaded())
+	{
+		for (const char* animDict : animDicts)
+		{
+			STREAMING::REQUEST_ANIM_DICT((char*)animDict);
+		}
+		WAIT(20);
+	}
+
+	log("anim dicts loaded");
+}
+
+bool DuelsEngine::hasAnimDictsLoaded()
+{
+	for (const char* animDict : animDicts)
+	{
+		if (!STREAMING::HAS_ANIM_DICT_LOADED((char*)animDict)) {
+			return false;
+		}
+	}
+
+	return true;
 }
