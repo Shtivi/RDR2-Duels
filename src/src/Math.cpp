@@ -173,8 +173,13 @@ Vector3 toVector3(float x, float y, float z)
 	return output;
 }
 
-float distance(Vector3 a, Vector3 b) {
-	return distanceBetween(a, b);
+float distance(Vector3 a, Vector3 b, bool useZ) {
+	if (!useZ)
+	{
+		return SYSTEM::VDIST(a.x, a.y, 0, b.x, b.y, 0);
+	}
+	return SYSTEM::VDIST(a.x, a.y, a.z, b.x, b.y, b.z);
+	//return distanceBetween(a, b);
 }
 
 float distance(Vector3 pos, Entity entity) {

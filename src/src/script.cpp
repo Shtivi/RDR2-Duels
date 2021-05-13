@@ -22,6 +22,7 @@ void Initialize()
 	player = PLAYER::PLAYER_PED_ID();
 	DECORATOR::DECOR_REGISTER("SH_DUELS_dueled", 3);
 	DECORATOR::DECOR_REGISTER("SH_DUELS_duelable", 3);
+	DECORATOR::DECOR_REGISTER("SH_DUELS_waitingReaction", 3);
 	initializeLogger();
 	log("Duels by Shtivi - 1.2.0");
 
@@ -37,7 +38,9 @@ void Initialize()
 		{"NeverRefuseDuels", 0},
 		{"AggressivenessTendencyFactor", 0},
 		{"AntagonizeFirst", 1},
-		{"FleeHorseWhenTooClose", 1}
+		{"FleeHorseWhenTooClose", 1},
+		{"HorseFleeDistance", 10},
+		{"BailingTimeout", 20000}
 	});
 
 	duels = new DuelsEngine();
@@ -82,6 +85,9 @@ void main()
 
 		if (debugOn)
 		{
+			//PURSUIT::_0xDE5FAA741A781F73(PLAYER::GET_PLAYER_INDEX(), 1);
+
+
 			Player playerId = PLAYER::PLAYER_ID();
 			PLAYER::SET_ALL_RANDOM_PEDS_FLEE((Player*)player, false);
 			int n = SCRIPT::GET_NUMBER_OF_EVENTS(0);
@@ -140,9 +146,7 @@ void main()
 			}
 
 
-			//PURSUIT::CLEAR_CURRENT_PURSUIT();
-			//PLAYER::CLEAR_PLAYER_WANTED_LEVEL(PLAYER::PLAYER_ID());
-			//PLAYER::SET_EVERYONE_IGNORE_PLAYER(PLAYER::PLAYER_ID(), 0);
+			PURSUIT::CLEAR_CURRENT_PURSUIT();
 
 			if (IsKeyJustUp(VK_KEY_X))
 			{

@@ -19,7 +19,7 @@ Vector3 getUpVector(Entity entity);
 Vector3 getRightVector(Entity entity);
 Vector3 getForwardVector(Entity entity);
 Vector3 toVector3(float x, float y, float z);
-float distance(Vector3 a, Vector3 b);
+float distance(Vector3 a, Vector3 b, bool useZ = true);
 float distance(Vector3 pos, Entity entity);
 float distance(Entity e1, Entity e2);
 float distance(Entity e1);
