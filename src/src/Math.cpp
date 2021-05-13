@@ -245,3 +245,16 @@ Vector3 calculatePointInDirection(Vector3 source, float heading, float distance)
 	Vector3 direction = toVector3(SYSTEM::SIN(heading), SYSTEM::COS(heading), 0);
 	return source + direction * distance;
 }
+
+float calculateHeadingToVector(Vector3 source, Vector3 destination)
+{
+	Vector3 direction = source - destination;
+	float angle = radToDeg(atan2(direction.x, direction.y));
+	int normalized = ((int)angle + 360) % 360;
+	return normalized;
+}
+
+float radToDeg(float rad)
+{
+	return (rad * 180.0f) / 3.14159265;
+}

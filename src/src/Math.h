@@ -35,3 +35,5 @@ Vector3 operator-(Vector3 const& v, Vector3 const& u);
 Vector3 operator* (Vector3 const& left, Vector3 const& right);
 bool operator! (Vector3 const& left);
 Vector3 calculatePointInDirection(Vector3 source, float heading, float distance);
+float radToDeg(float rad);
+float calculateHeadingToVector(Vector3 source, Vector3 destination);

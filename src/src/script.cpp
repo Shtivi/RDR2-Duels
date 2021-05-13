@@ -130,9 +130,11 @@ void main()
 					//	PED::GET_PED_RELATIONSHIP_GROUP_HASH(player),
 					//	PED::GET_PED_RELATIONSHIP_GROUP_HASH(targetEntity)
 					//));
-					debug(PED::GET_PED_RELATIONSHIP_GROUP_HASH(targetEntity) == GAMEPLAY::GET_HASH_KEY("REL_GANG_DUTCHS"));
+					//debug(PED::GET_PED_RELATIONSHIP_GROUP_HASH(targetEntity) == GAMEPLAY::GET_HASH_KEY("REL_GANG_DUTCHS"));
 					if (IsKeyJustUp(VK_KEY_Z)) {
+						PED::_0xCB9401F918CB0F75(targetEntity, (Any*)"NarrowLedge", true, 1000);
 					}
+
 				}
 				else
 				{
@@ -146,7 +148,7 @@ void main()
 			}
 
 
-			PURSUIT::CLEAR_CURRENT_PURSUIT();
+				PURSUIT::CLEAR_CURRENT_PURSUIT();
 
 			if (IsKeyJustUp(VK_KEY_X))
 			{
@@ -184,16 +186,20 @@ void main()
 			if (IsKeyJustUp(VK_F3))
 			{
 				Ped ped = createPed("a_m_m_bivroughtravellers_01", playerPos() + getForwardVector(player) * 5);
+				//PED::_0xA762C9D6CF165E0D(ped, (Any*)"MoodName", (Any*)"MoodBrave", -1);
+				PED::_0xCB9401F918CB0F75(ped, (Any*)"HandsOnBelt", true, -1);
 				ENTITY::SET_ENTITY_AS_NO_LONGER_NEEDED(&ped);
 			}
 
 			if (IsKeyJustUp(VK_KEY_K))
 			{
-				playerFleeHorse(getPlayerPrimaryHorse());
+				playMusic("DUEL_GENERAL_START");
+				WAIT(4000);
+				playMusic("MC_MUSIC_STOP");
 			}
 		}
 
-		if (true && IsKeyJustUp(VK_F2))
+		if (false && IsKeyJustUp(VK_F2))
 		{
 			setDebugMode(!isDebugMode());
 		}

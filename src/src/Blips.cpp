@@ -10,6 +10,7 @@ Blip createBlip(Vector3 pos, Hash blipType, Hash blipSprite)
 	{
 		RADAR::SET_BLIP_SPRITE(blip, blipSprite, false);
 	}
+	ENTITY::FREEZE_ENTITY_POSITION(dummyProp, true);
 
 	return blip;
 }

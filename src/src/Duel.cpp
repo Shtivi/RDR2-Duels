@@ -43,7 +43,6 @@ Duel::Duel(Ped challengedPed, Position pos1, Position pos2)
 void Duel::update()
 {
 	float playerDistance = distance(playerPos(), pos1.first);
-
 	switch (getStage())
 	{
 		case DuelStage::Challenged:
@@ -144,7 +143,7 @@ void Duel::update()
 				{
 					onDrawModeEntered();
 				}
-				else if (drawTimer.getElapsedSeconds() == opponentDrawTime)
+				else if (SYSTEM::TIMERA() > opponentDrawTime)
 				{
 					Hash opponentSidearmWeapon = getPedEquipedWeapon(challengedPed, WeaponAttachPoint::WEAPON_ATTACH_POINT_PISTOL_R);
 					WEAPON::SET_CURRENT_PED_WEAPON(challengedPed, opponentSidearmWeapon, true, 0, 0, 0);
@@ -164,6 +163,8 @@ void Duel::update()
 		}
 		case DuelStage::PostDuel:
 		{
+			PURSUIT::CLEAR_CURRENT_PURSUIT();
+			PLAYER::SET_PLAYER_FORCED_AIM(PLAYER::PLAYER_ID(), true, challengedPed, -1, 0);
 			GameCamera::setScriptCamsRendering(false, true, 500);
 			UI::DISPLAY_HUD(true);
 			if (drawTimer.getElapsedSeconds() == 5)
@@ -335,18 +336,24 @@ void Duel::generateDuelPosition()
 	if (nodesDistance > 14 || nodesDistance < 6 || distance(pos1.first, playerCoords) > 25)
 	{
 		isDuelWellPositioned = false;
-		if (distance(playerCoords, opponentCoords) > 20)
-		{
-			setStage(DuelStage::Declined);
-			return;
-		}
-		else
-		{
-			float playerHeading = ENTITY::GET_ENTITY_HEADING(player);
-			pos1 = make_pair(playerCoords, playerHeading);
-			Vector3 opponentDuelCoords = opponentCoords + getForwardVector(player) * (8 - distance(playerCoords, opponentCoords));
-			pos2 = make_pair(*getSafeCoordForPed(opponentDuelCoords), playerHeading - 180);
-		}
+		//if (distance(playerCoords, opponentCoords) > 20)
+		//{
+		//	setStage(DuelStage::Declined);
+		//	return;
+		//}
+		//else
+		//{
+		//	float playerHeading = ENTITY::GET_ENTITY_HEADING(player);
+		//	pos1 = make_pair(playerCoords, playerHeading);
+		//	Vector3 opponentDuelCoords = opponentCoords + getForwardVector(player) * (8 - distance(playerCoords, opponentCoords));
+		//	pos2 = make_pair(*getSafeCoordForPed(opponentDuelCoords), playerHeading - 180);
+		//}
+
+		float playerHeading = ENTITY::GET_ENTITY_HEADING(player);
+		pos1 = make_pair(playerCoords, playerHeading);
+		Vector3 opponentDuelCoords = opponentCoords + getForwardVector(player) * (8 - distance(playerCoords, opponentCoords));
+		float dist = distance(opponentDuelCoords, playerPos());
+		pos2 = make_pair(*getSafeCoordForPed(opponentDuelCoords), playerHeading - 180);
 	}
 }
 
@@ -370,7 +377,6 @@ void Duel::onPositioningInitiated()
 
 	AI::TASK_LOOK_AT_ENTITY(0, player, -1, -1, 2048, 3);
 	AI::TASK_FOLLOW_NAV_MESH_TO_COORD(0, pos2.first.x, pos2.first.y, pos2.first.z, 1, -1, 0.8f, 1, 0);
-	//AI::TASK_TURN_PED_TO_FACE_ENTITY(0, player, 2000, 0, 0, 0);
 	AI::TASK_TURN_PED_TO_FACE_COORD(0, pos1.first.x, pos1.first.y, pos1.first.z, 2000);
 	if (PED::_0x50F124E6EF188B22(challengedPed))
 	{
@@ -410,7 +416,15 @@ void Duel::enterDrawMode()
 
 	Vector3 pos = playerPos();
 	AI::CLEAR_PED_TASKS(player, 0, 0);
-	AI::_0x5D5B0D5BC3626E5A(player, /*GAMEPLAY::GET_HASH_KEY("idle_a")*/529077016, getPedEquipedWeapon(player, WeaponAttachPoint::WEAPON_ATTACH_POINT_PISTOL_R), challengedPed, 0.22, 0, pos.x, pos.y, pos.z, 180, 1); // Task_duel
+
+	//Object seq;
+	//AI::OPEN_SEQUENCE_TASK(&seq);
+	//playAnimation(0, "enter_player", "mini_duel@base", -1, 2, -2);
+	//playAnimation(0, "idle_b_player", "mini_duel@base", 1000, 2, -2);
+	//AI::CLOSE_SEQUENCE_TASK(seq);
+	//AI::TASK_PERFORM_SEQUENCE(player, seq);
+
+	AI::_0x5D5B0D5BC3626E5A(player, /*GAMEPLAY::GET_HASH_KEY("idle_a")*/2002375312, getPedEquipedWeapon(player, WeaponAttachPoint::WEAPON_ATTACH_POINT_PISTOL_R), challengedPed, 0.22, 0, pos.x, pos.y, pos.z, 180, 1); // Task_duel
 
 	Hash opponentSidearmWeapon = getPedEquipedWeapon(challengedPed, WeaponAttachPoint::WEAPON_ATTACH_POINT_PISTOL_R);
 	WEAPON::SET_AMMO_IN_CLIP(challengedPed, opponentSidearmWeapon, WEAPON::GET_MAX_AMMO_IN_CLIP(challengedPed, opponentSidearmWeapon, true));
@@ -428,10 +442,10 @@ void Duel::onDrawModeEntered()
 	log("entering Draw Mode");
 	if (ScriptSettings::getBool("EnableDuelCamera"))
 	{
-		Vector3 offset = getForwardVector(player) * -1.1 + getUpVector(player) * 0.15 + getRightVector(player) * 0.9f;
-		duelCamera = new GameCamera(entityPos(player) + getForwardVector(player) * 5, 60);
-		duelCamera->attachTo(player, offset, false);
-		duelCamera->pointAt(challengedPed);
+		WAIT(500);
+		Vector3 offset = getForwardVector(player) * -1.2 + getUpVector(player) * -0.2 + getRightVector(player) * 0.8f;
+		duelCamera = new GameCamera(entityPos(player) + offset, 60);
+		duelCamera->pointAt(playerPos() + getForwardVector(player) * 8);
 		GameCamera::setScriptCamsRendering(true);
 		UI::DISPLAY_HUD(false);
 	}
@@ -448,7 +462,8 @@ void Duel::onDrawModeEntered()
 		AUDIO::PLAY_SOUND_FRONTEND("HUD_DRAW", "HUD_DUEL_SOUNDSET", true, 0);
 	}
 
-	opponentDrawTime = rndInt(3, 6);
+	opponentDrawTime = rndInt(2500, 4500);
+	SYSTEM::SETTIMERA(0);
 	drawTimer.start();
 }
 
