@@ -6,6 +6,7 @@ Prompt* challengePrompt;
 Duel* duel;
 vector<const char*> animDicts = {
 	"MINI_DUEL@PLAYER@BASE",
+	"MINI_DUEL@BASE",
 	"MINI_DUEL@REPOSITION@BASE",
 	"MINI_DUEL@PLAYER@ACTION",
 	"MINI_DUEL@PLAYER@NORMAL",

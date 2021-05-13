@@ -103,6 +103,7 @@ void Duel::update()
 			{
 				if (SYSTEM::TIMERA() > ScriptSettings::get("BailingTimeout") * 0.675 && !DECORATOR::DECOR_GET_INT(challengedPed, "SH_DUELS_waitingReaction"))
 				{
+					log("duel is about to be abandoned");
 					playAmbientSpeech(challengedPed, "MELEE_BRING_IT_ON");
 					DECORATOR::DECOR_SET_INT(challengedPed, "SH_DUELS_waitingReaction", 1);
 				}
@@ -377,7 +378,8 @@ void Duel::onPositioningInitiated()
 	}
 	else
 	{
-		playAnimation(0, "base_npc", "mini_duel@base", -1, 1, -8, 1);
+		playAnimation(0, "enter_npc", "mini_duel@base", -1, 1, -1, 0);
+		playAnimation(0, "idle_a_npc", "mini_duel@base", -1, 1, -1, 0);
 	}
 	AI::CLOSE_SEQUENCE_TASK(seq);
 	AI::TASK_PERFORM_SEQUENCE(challengedPed, seq);
@@ -446,7 +448,7 @@ void Duel::onDrawModeEntered()
 		AUDIO::PLAY_SOUND_FRONTEND("HUD_DRAW", "HUD_DUEL_SOUNDSET", true, 0);
 	}
 
-	opponentDrawTime = rndInt(4, 7);
+	opponentDrawTime = rndInt(3, 6);
 	drawTimer.start();
 }
 
