@@ -24,6 +24,11 @@ bool isPedDuelable(Ped ped)
 		return false;
 	}
 
+	if (!ScriptSettings::getBool("ChallengeGangMembers") && PED::GET_PED_RELATIONSHIP_GROUP_HASH(ped) == GAMEPLAY::GET_HASH_KEY("REL_GANG_DUTCHS"))
+	{
+		return false;
+	}
+
 	bool allow =
 		!ENTITY::IS_ENTITY_DEAD(ped) &&
 		PED::IS_PED_HUMAN(ped) &&
@@ -32,7 +37,6 @@ bool isPedDuelable(Ped ped)
 		doesPedHaveSidearm(ped) &&
 		!AI::IS_PED_RUNNING(ped) &&
 		!AI::IS_PED_SPRINTING(ped) &&
-		PED::GET_PED_RELATIONSHIP_GROUP_HASH(ped) != GAMEPLAY::GET_HASH_KEY("REL_GANG_DUTCHS") && 
 		!PED::IS_PED_FLEEING(ped) &&
 		!AI::IS_PED_CUFFED(ped) &&
 		DECORATOR::DECOR_GET_INT(ped, "SH_DUELS_dueled") != 1 &&

@@ -179,7 +179,7 @@ void Duel::update()
 			} 
 			else if (getPedEquipedWeapon(challengedPed) == WeaponHash::Unarmed && !PED::IS_PED_FATALLY_INJURED(challengedPed))
 			{
-				DECORATOR::DECOR_SET_INT(challengedPed, "honor_override", 20);
+				DECORATOR::DECOR_SET_INT(challengedPed, "honor_override", 10);
 
 				Conversation conv = Conversation();
 				conv.addLine(challengedPed, "GET_AWAY_FROM_ME");
@@ -194,7 +194,6 @@ void Duel::update()
 			}
 
 			Vector3 loc = playerPos();
-			//DECISIONEVENT::_0xB4C71BA9CAB097BD(loc.x, loc.y, loc.z, 50, true);
 			DECISIONEVENT::REMOVE_ALL_SHOCKING_EVENTS(false);
 
 			break;
@@ -462,7 +461,7 @@ void Duel::onDrawModeEntered()
 		AUDIO::PLAY_SOUND_FRONTEND("HUD_DRAW", "HUD_DUEL_SOUNDSET", true, 0);
 	}
 
-	opponentDrawTime = rndInt(2500, 4500);
+	opponentDrawTime = rndInt(3500, 5500);
 	SYSTEM::SETTIMERA(0);
 	drawTimer.start();
 }
@@ -493,6 +492,7 @@ void Duel::onPlayerDirtyMove()
 void Duel::cleanup()
 {
 	deleteBlipSafe(&positionBlip);
+	PLAYER::SET_PLAYER_FORCED_AIM(PLAYER::PLAYER_ID(), false, 0, 0, 0);;
 	PED::SET_BLOCKING_OF_NON_TEMPORARY_EVENTS(challengedPed, false);
 	GameCamera::setScriptCamsRendering(false, true, 500);
 	UI::DISPLAY_HUD(true);

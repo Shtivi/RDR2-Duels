@@ -40,7 +40,8 @@ void Initialize()
 		{"AntagonizeFirst", 1},
 		{"FleeHorseWhenTooClose", 1},
 		{"HorseFleeDistance", 10},
-		{"BailingTimeout", 20000}
+		{"BailingTimeout", 20000},
+		{"ChallengeGangMembers", 0}
 	});
 
 	duels = new DuelsEngine();
