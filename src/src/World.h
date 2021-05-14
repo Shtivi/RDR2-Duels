@@ -94,6 +94,7 @@ void setPlayerCoreValue(AttributeCores core, int value);
 int getPlayerCoreValue(AttributeCores core);
 void addToPlayerCore(AttributeCores core, int amount);
 Position getClosestVehicleNode(Vector3 around, bool flipDirection = false);
+void playEntityAnimation(Entity entity, const char* animName, const char* animDict, float duration, bool loop = false, bool stayInAnim = false, float delta = 0, int bitset = 0);
 
 #include "ScenarioPoint.h"
 #include "Place.h"

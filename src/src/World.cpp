@@ -437,3 +437,15 @@ Position getClosestVehicleNode(Vector3 around, bool flipDirection)
 
 	return make_pair(toVector3(0, 0, 0), 0);
 }
+
+void playEntityAnimation(Entity entity, const char* animName, const char* animDict, float duration, bool loop, bool stayInAnim, float delta, int bitset) {
+	int i = 0;
+	while (!STREAMING::HAS_ANIM_DICT_LOADED((char*)animDict) && i <= 500)
+	{
+		STREAMING::REQUEST_ANIM_DICT((char*)animDict);
+		i++;
+		WAIT(10);
+	}
+
+	ENTITY::PLAY_ENTITY_ANIM(entity, (char*)animName, (char*)animDict, duration, loop, stayInAnim, 1, delta, bitset);
+}

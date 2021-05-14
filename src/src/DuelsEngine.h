@@ -19,6 +19,8 @@ public:
 	void update();
 
 	static DuelChallengeReaction generatePedDuelReaction(Ped candidate);
+	static void loadAnimDicts();
+	static bool hasAnimDictsLoaded();
 
 private:
 

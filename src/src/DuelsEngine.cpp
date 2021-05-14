@@ -4,6 +4,18 @@ const float DuelDistance = 12;
 
 Prompt* challengePrompt;
 Duel* duel;
+vector<const char*> animDicts = {
+	"MINI_DUEL@PLAYER@BASE",
+	"MINI_DUEL@BASE",
+	"MINI_DUEL@REPOSITION@BASE",
+	"MINI_DUEL@PLAYER@ACTION",
+	"MINI_DUEL@PLAYER@NORMAL",
+	"MINI_DUEL@PLAYER@MISSION@MUD4",
+	"MINI_DUEL@CHALLENGER@BASE",
+	"MINI_DUEL@PLAYER@MISSION@IND3@IG9",
+	"MINI_DUEL@CHALLENGER@RC@RCAL@RC3_IG1",
+
+};
 
 bool isPedDuelable(Ped ped)
 {
@@ -12,11 +24,15 @@ bool isPedDuelable(Ped ped)
 		return false;
 	}
 
+	if (!ScriptSettings::getBool("ChallengeGangMembers") && PED::GET_PED_RELATIONSHIP_GROUP_HASH(ped) == GAMEPLAY::GET_HASH_KEY("REL_GANG_DUTCHS"))
+	{
+		return false;
+	}
+
 	bool allow =
 		!ENTITY::IS_ENTITY_DEAD(ped) &&
 		PED::IS_PED_HUMAN(ped) &&
-		!ENTITY::IS_ENTITY_A_MISSION_ENTITY(ped) &&
-		PED::IS_PED_ON_FOOT(ped) &&
+		!PED::IS_PED_IN_ANY_TRAIN(ped) &&
 		!PED::IS_PED_IN_COMBAT(ped, player) &&
 		doesPedHaveSidearm(ped) &&
 		!AI::IS_PED_RUNNING(ped) &&
@@ -26,22 +42,6 @@ bool isPedDuelable(Ped ped)
 		DECORATOR::DECOR_GET_INT(ped, "SH_DUELS_dueled") != 1 &&
 		!PED::IS_PED_IN_MELEE_COMBAT(ped) &&
 		!PED::_0x3AA24CCC0D451379(ped)/* IS_PED_HOGTIED */;
-
-	//debug(
-	//	string("alive ").append(to_string(!ENTITY::IS_ENTITY_DEAD(ped)))
-	//	.append("\nhuman ").append(to_string(PED::IS_PED_HUMAN(ped)))
-	//	.append("\n!mission ").append(to_string(!ENTITY::IS_ENTITY_A_MISSION_ENTITY(ped)))
-	//	.append("\nIS_PED_ON_FOOT ").append(to_string(PED::IS_PED_ON_FOOT(ped)))
-	//	.append("\n!IS_PED_IN_COMBAT ").append(to_string(!PED::IS_PED_IN_COMBAT(ped, player)))
-	//	.append("\ndoesPedHaveSidearm ").append(to_string(doesPedHaveSidearm(ped)))
-	//	.append("\n!IS_PED_RUNNING ").append(to_string(!AI::IS_PED_RUNNING(ped)))
-	//	.append("\n!IS_PED_SPRINTING ").append(to_string(!AI::IS_PED_SPRINTING(ped)))
-	//	.append("\n!IS_PED_FLEEING ").append(to_string(!PED::IS_PED_FLEEING(ped)))
-	//	.append("\n!IS_PED_CUFFED ").append(to_string(!AI::IS_PED_CUFFED(ped)))
-	//	.append("\nSH_DUELS_dueled ").append(to_string(DECORATOR::DECOR_GET_INT(ped, "SH_DUELS_dueled")))
-	//	.append("\n!IS_PED_IN_MELEE_COMBAT").append(to_string(!PED::IS_PED_IN_MELEE_COMBAT(ped)))
-	//	.append("\n!IS_PED_HOGTIED").append(to_string(!PED::_0x3AA24CCC0D451379(ped)))
-	//);
 
 	if (isPedLawman(ped) && !ScriptSettings::getBool("DuelLawmen"))
 	{
@@ -55,10 +55,16 @@ DuelsEngine::DuelsEngine()
 {
 	challengePrompt = new Prompt("Duel", GAMEPLAY::GET_HASH_KEY("INPUT_INTERACT_OPTION1"), PromptMode::Standard);
 	challengePrompt->hide();
+	DuelsEngine::loadAnimDicts();
 }
 
 void DuelsEngine::update()
 {
+	if (GAMEPLAY::GET_MISSION_FLAG())
+	{
+		return;
+	}
+
 	if (!duel)
 	{
 		Entity targetEntity = getPlayerTargetEntity();
@@ -66,13 +72,13 @@ void DuelsEngine::update()
 
 		if (targetEntity)
 		{
-			if (DECISIONEVENT::IS_SHOCKING_EVENT_IN_SPHERE(0x73221D75 /* EVENT_SHOCKING_SEEN_INSULT */ , playerCoords.x, playerCoords.y, playerCoords.z, 10))
+			if (DECISIONEVENT::IS_SHOCKING_EVENT_IN_SPHERE(0x73221D75 /* EVENT_SHOCKING_SEEN_INSULT */, playerCoords.x, playerCoords.y, playerCoords.z, 10))
 			{
 				DECORATOR::DECOR_SET_INT(targetEntity, "SH_DUELS_duelable", 1);
 			}
 
 			challengePrompt->setIsEnabled(!AUDIO::IS_AMBIENT_SPEECH_PLAYING(player));
-			
+
 			if (isPedDuelable(targetEntity))
 			{
 				challengePrompt->show();
@@ -135,4 +141,30 @@ DuelChallengeReaction DuelsEngine::generatePedDuelReaction(Ped candidate)
 	{
 		return DuelChallengeReaction::Decline;
 	}
+}
+
+void DuelsEngine::loadAnimDicts()
+{
+	while (!hasAnimDictsLoaded())
+	{
+		for (const char* animDict : animDicts)
+		{
+			STREAMING::REQUEST_ANIM_DICT((char*)animDict);
+		}
+		WAIT(20);
+	}
+
+	log("anim dicts loaded");
+}
+
+bool DuelsEngine::hasAnimDictsLoaded()
+{
+	for (const char* animDict : animDicts)
+	{
+		if (!STREAMING::HAS_ANIM_DICT_LOADED((char*)animDict)) {
+			return false;
+		}
+	}
+
+	return true;
 }

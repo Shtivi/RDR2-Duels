@@ -22,8 +22,9 @@ void Initialize()
 	player = PLAYER::PLAYER_PED_ID();
 	DECORATOR::DECOR_REGISTER("SH_DUELS_dueled", 3);
 	DECORATOR::DECOR_REGISTER("SH_DUELS_duelable", 3);
+	DECORATOR::DECOR_REGISTER("SH_DUELS_waitingReaction", 3);
 	initializeLogger();
-	log("Duels by Shtivi - 1.0.0");
+	log("Duels by Shtivi - 1.2.0");
 
 	ScriptSettings::load("Duels.ini", new SettingsMap {
 		{"EnableDuelCamera", 1},
@@ -36,11 +37,16 @@ void Initialize()
 		{"OneShotDeath", 0},
 		{"NeverRefuseDuels", 0},
 		{"AggressivenessTendencyFactor", 0},
-		{"AntagonizeFirst", 1}
+		{"AntagonizeFirst", 1},
+		{"FleeHorseWhenTooClose", 1},
+		{"HorseFleeDistance", 10},
+		{"BailingTimeout", 20000},
+		{"ChallengeGangMembers", 0}
 	});
 
 	duels = new DuelsEngine();
 }
+
 
 void main()
 {
@@ -80,20 +86,27 @@ void main()
 
 		if (debugOn)
 		{
+			//PURSUIT::_0xDE5FAA741A781F73(PLAYER::GET_PLAYER_INDEX(), 1);
 
-			PLAYER::SET_MAX_WANTED_LEVEL(5);
-			//PLAYER::SET_EVERYONE_IGNORE_PLAYER(PLAYER::PLAYER_ID(), 1);
-			DECISIONEVENT::REMOVE_SHOCKING_EVENT_SPAWN_BLOCKING_AREAS();
 
-			//DECISIONEVENT::REMOVE_ALL_SHOCKING_EVENTS(0);
-			//DECISIONEVENT::SUPPRESS_SHOCKING_EVENTS_NEXT_FRAME();
+			Player playerId = PLAYER::PLAYER_ID();
+			PLAYER::SET_ALL_RANDOM_PEDS_FLEE((Player*)player, false);
+			int n = SCRIPT::GET_NUMBER_OF_EVENTS(0);
+			for (int i = 0; i < n; i++)
+			{
+				int eventType = SCRIPT::GET_EVENT_AT_INDEX(0, i);
+				if (eventType == GAMEPLAY::GET_HASH_KEY("EVENT_PLAYER_COLLECTED_AMBIENT_PICKUP"))
+				{
+					int eventSize = 36;
+					int arr[10];
+					SCRIPT::GET_EVENT_DATA(0, i, arr, eventSize);
+					showSubtitle(to_string(arr[0]).c_str());
+
+				}
+
+			}
 
 			Vector3 pos = playerPos();
-
-
-
-			//debug(DECISIONEVENT::IS_SHOCKING_EVENT_IN_SPHERE(0x93B7032F, pos.x, pos.y, pos.z, 60));
-			//debug(DECISIONEVENT::IS_SHOCKING_EVENT_IN_SPHERE(1811873798, pos.x, pos.y, pos.z, 60));
 
 			Hash weaponHash;
 			WEAPON::GET_CURRENT_PED_WEAPON(player, &weaponHash, 0, 0, 0);
@@ -101,15 +114,8 @@ void main()
 				Entity e;
 				if (PLAYER::GET_ENTITY_PLAYER_IS_FREE_AIMING_AT(PLAYER::PLAYER_ID(), &e) /*&& distanceBetweenEntities(player, e) < 20*/) {
 					if (IsKeyJustUp(VK_KEY_Z)) {
-						/*log(to_string((int)ENTITY::GET_ENTITY_MODEL(e)));
-						log(to_string(entityPos(e)));
-						showSubtitle(to_string(entityPos(e)));*/
-					int bone;
-					PED::GET_PED_LAST_DAMAGE_BONE(e, &bone);
-					PED::_0xFFD54D9FE71B966A(e, 2, 26043, -.5, -.05, 0, ENTITY::GET_ENTITY_HEADING(e), 5000, -1, 1);
 					}
-					//debug(PED::IS_PED_RESPONDING_TO_EVENT(e, -587661767));
-					//debug((int)ENTITY::GET_ENTITY_MODEL(e));
+					debug((int)ENTITY::GET_ENTITY_MODEL(e));
 				}
 				else
 				{
@@ -117,29 +123,22 @@ void main()
 			}
 			else
 			{
-				/*CONTROLS::_SET_CONTROL_NORMAL(0, GAMEPLAY::GET_HASH_KEY("INPUT_INTERACT_LOCKON"), 1);
-				CONTROLS::_SET_CONTROL_NORMAL(0, GAMEPLAY::GET_HASH_KEY("INPUT_ATTACK"), 1);*/
-
 				Entity targetEntity;
 				if (PLAYER::GET_PLAYER_TARGET_ENTITY(PLAYER::PLAYER_ID(), &targetEntity))
 				{
+					//debug((int)PED::GET_PED_RELATIONSHIP_GROUP_HASH(targetEntity));
+					//debug(PED::GET_RELATIONSHIP_BETWEEN_GROUPS(
+					//	PED::GET_PED_RELATIONSHIP_GROUP_HASH(player),
+					//	PED::GET_PED_RELATIONSHIP_GROUP_HASH(targetEntity)
+					//));
+					//debug(PED::GET_PED_RELATIONSHIP_GROUP_HASH(targetEntity) == GAMEPLAY::GET_HASH_KEY("REL_GANG_DUTCHS"));
 					if (IsKeyJustUp(VK_KEY_Z)) {
-						/*log(to_string(ENTITY::GET_ENTITY_HEADING(targetEntity)));
-						log(to_string((int)ENTITY::GET_ENTITY_MODEL(targetEntity)));*/
-						//log((int)PED::GET_PED_RELATIONSHIP_GROUP_HASH(targetEntity));
-						//showSubtitle(to_string((int)PED::GET_PED_RELATIONSHIP_GROUP_HASH(targetEntity)).c_str());
+						PED::_0xCB9401F918CB0F75(targetEntity, (Any*)"NarrowLedge", true, 1000);
 					}
-					//debug(PED::IS_PED_RESPONDING_TO_EVENT(targetEntity, -587661767));
-					//debug(PED::_0xC8D523BF5BBD3808(targetEntity, 0x12AB59DE));
 
-					//debug((int)PED::_0xEC6B59BE445FEC51(targetEntity));
-					//debug(PED::GET_PED_COMBAT_MOVEMENT(targetEntity));
-					//debug(PED::GET_PED_CONFIG_FLAG(targetEntity, 347, 1));
-					//debug(PED::GET_PED_ACCURACY(targetEntity));
 				}
 				else
 				{
-
 				}
 			}
 
@@ -150,13 +149,11 @@ void main()
 			}
 
 
-			//PURSUIT::CLEAR_CURRENT_PURSUIT();
-			//PLAYER::CLEAR_PLAYER_WANTED_LEVEL(PLAYER::PLAYER_ID());
-			//PLAYER::SET_EVERYONE_IGNORE_PLAYER(PLAYER::PLAYER_ID(), 0);
+				PURSUIT::CLEAR_CURRENT_PURSUIT();
 
 			if (IsKeyJustUp(VK_KEY_X))
 			{
-				playAmbientSpeech(player, "RE_ES_EMR_V1_ACCEPT_P");
+				AI::_0xFD45175A6DFD7CE9(PLAYER::_0xB48050D326E9A2F3(PLAYER::PLAYER_ID()), player, 3, 0, 25, 10000, 0);
 			}
 
 			if (IsKeyJustUp(VK_F1))
@@ -170,60 +167,36 @@ void main()
 					showSubtitle("invincible OFF");
 
 				}
-				ENTITY::SET_ENTITY_INVINCIBLE(player, invincible);
 			}
 
 			if (IsKeyJustUp(VK_KEY_Z))
 			{
-				Ped ped = createPed("g_m_o_uniexconfeds_01", playerPos() + getForwardVector(player) * rndInt(5, 10), 180);
-				//PED::SET_PED_CONFIG_FLAG(ped, 138, 1); // kill in one shot
-				//PED::SET_PED_CONFIG_FLAG(ped, 6, 1); // PCF_DontInfluenceWantedLevel
+				//Ped horse = createAmbientHorse(playerPos() + getForwardVector(player) * 5);
+				//Ped ped = createPedOnHorse("a_m_m_bivroughtravellers_01", horse, -1);
+				//WAIT(2000);
+				//AI::_0x48E92D3DDE23C23A(ped, 0, 0, 0, 0, 0);
+				//ENTITY::SET_ENTITY_AS_NO_LONGER_NEEDED(&ped);
 
-				//showSubtitle(to_string(PED::GET_PED_COMBAT_MOVEMENT(ped)).c_str());
-				//showSubtitle(to_string(PED::GET_PED_CONFIG_FLAG(ped, 460, 0)).c_str());
-				/*WAIT(1000);
-				playAmbientSpeech(ped, "IGNORING_YOU");*/
+				Vehicle veh = createVehicle(VehicleHash::Utilliwag, playerPos() + getForwardVector(player) * 10);
+				Ped ped = createPed("a_m_m_bivroughtravellers_01", veh, -1);
+				ENTITY::SET_ENTITY_AS_NO_LONGER_NEEDED(&ped);
 
-				//PED::SET_BLOCKING_OF_NON_TEMPORARY_EVENTS(ped, true);
-
-
-				ENTITY::SET_PED_AS_NO_LONGER_NEEDED(&ped);
-
-				// 0xEC6681EB EVENT_SHOCKING_AUDIBLE_REACTION 
-
-
-				//while (!ENTITY::IS_ENTITY_DEAD(ped))
-				//{
-				//	debug("killit");
-				//	WAIT(0);
-				//}
-
-				//	int bone;
-				//	PED::GET_PED_LAST_DAMAGE_BONE(ped, &bone);
-				//	if (bone == 21030)
-				//	{
-				//		showSubtitle("headshot");
-				//	}
-
-				////UI::DISPLAY_HUD(true);
-				//Ped ped = createPed("A_M_M_BynRoughTravellers_01", playerPos() + getForwardVector(player) * rndInt(5, 10), 180);
-				//Vector3 pos = entityPos(ped);
-				////DECISIONEVENT::ADD_SHOCKING_EVENT_AT_POSITION(0x2CA3408A, pos.x, pos.y, pos.z, 0, 30, 35, -1, 20, 1127481344, 0);
-				//DECISIONEVENT::ADD_SHOCKING_EVENT_FOR_ENTITY(2507051957, player, 0, 30, 35, -1, 20, 1127481344, 0, 0, -1, -1);
-				//WAIT(500);
-				//ENTITY::SET_PED_AS_NO_LONGER_NEEDED(&ped);
-				////WAIT(5000);
-				////UI::DISPLAY_HUD(false);
 			}
 
 
 			if (IsKeyJustUp(VK_F3))
 			{
-				AI::CLEAR_PED_TASKS(player, 1, 1);
+				Ped ped = createPed("a_m_m_bivroughtravellers_01", playerPos() + getForwardVector(player) * 5);
+				//PED::_0xA762C9D6CF165E0D(ped, (Any*)"MoodName", (Any*)"MoodBrave", -1);
+				PED::_0xCB9401F918CB0F75(ped, (Any*)"HandsOnBelt", true, -1);
+				ENTITY::SET_ENTITY_AS_NO_LONGER_NEEDED(&ped);
 			}
 
 			if (IsKeyJustUp(VK_KEY_K))
 			{
+				playMusic("DUEL_GENERAL_START");
+				WAIT(4000);
+				playMusic("MC_MUSIC_STOP");
 			}
 		}
 
@@ -294,9 +267,11 @@ void setDebugMode(bool toggle)
 	if (debugOn)
 	{
 		showSubtitle("Debug tools ON");
+		ENTITY::SET_ENTITY_INVINCIBLE(player, true);
 	}
 	else
 	{
 		showSubtitle("Debug tools OFF");
+		ENTITY::SET_ENTITY_INVINCIBLE(player, false);
 	}
 }
