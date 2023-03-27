@@ -22,6 +22,4 @@ public:
 	static void loadAnimDicts();
 	static bool hasAnimDictsLoaded();
 
-private:
-
 };

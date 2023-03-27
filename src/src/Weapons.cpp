@@ -39,13 +39,11 @@ Vector3 getPedLastWeaponImpactCoord(Ped ped)
 bool doesPedHaveSidearm(Ped ped)
 {
 	//return WEAPON::GET_PED_AMMO_BY_TYPE(ped, WEAPON::_0x5C2EA6C44F515F34(WeaponHash::RevolverCattleman))
-	return WEAPON::GET_PED_AMMO_BY_TYPE(ped, AmmoType::AmmoRevolver) || WEAPON::GET_PED_AMMO_BY_TYPE(ped, AmmoType::AmmoPistol);
-	//Hash opponentSidearmWeapon;
-	//WEAPON::GET_CURRENT_PED_WEAPON(ped, &opponentSidearmWeapon, true, 3, false);
-	//if (opponentSidearmWeapon == WeaponHash::Unarmed)
-	//{
-	//	return false;
-	//}
+	//return WEAPON::GET_PED_AMMO_BY_TYPE(ped, AmmoType::AmmoRevolver) || WEAPON::GET_PED_AMMO_BY_TYPE(ped, AmmoType::AmmoPistol);
 
-	//return true;
+
+
+	Hash opponentSidearmWeapon;
+	WEAPON::GET_CURRENT_PED_WEAPON(ped, &opponentSidearmWeapon, true, 3, false);
+	return opponentSidearmWeapon != WeaponHash::Unarmed;
 }

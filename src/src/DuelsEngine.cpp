@@ -53,8 +53,7 @@ bool isPedDuelable(Ped ped)
 
 DuelsEngine::DuelsEngine()
 {
-	challengePrompt = new Prompt("Duel", GAMEPLAY::GET_HASH_KEY("INPUT_INTERACT_OPTION1"), PromptMode::Standard);
-	challengePrompt->hide();
+	challengePrompt = 0;
 	DuelsEngine::loadAnimDicts();
 }
 
@@ -69,20 +68,29 @@ void DuelsEngine::update()
 	{
 		Entity targetEntity = getPlayerTargetEntity();
 		Vector3 playerCoords = playerPos();
+		int step = 0;
 
 		if (targetEntity)
 		{
+			if (!challengePrompt)
+			{
+				challengePrompt = new Prompt("Duel", GAMEPLAY::GET_HASH_KEY("INPUT_INTERACT_OPTION1"), PromptMode::Standard);
+			}
+			
+			challengePrompt->hide();
+			challengePrompt->setTargetEntity(targetEntity);
+
 			if (DECISIONEVENT::IS_SHOCKING_EVENT_IN_SPHERE(0x73221D75 /* EVENT_SHOCKING_SEEN_INSULT */, playerCoords.x, playerCoords.y, playerCoords.z, 10))
 			{
 				DECORATOR::DECOR_SET_INT(targetEntity, "SH_DUELS_duelable", 1);
+				log("antagonized");
 			}
 
-			challengePrompt->setIsEnabled(!AUDIO::IS_AMBIENT_SPEECH_PLAYING(player));
+			challengePrompt->setIsEnabled(!AUDIO::IS_ANY_SPEECH_PLAYING(player));
 
 			if (isPedDuelable(targetEntity))
 			{
 				challengePrompt->show();
-				challengePrompt->setTargetEntity(targetEntity);
 
 				if (challengePrompt->isActivatedByPlayer())
 				{
@@ -92,20 +100,35 @@ void DuelsEngine::update()
 						getClosestVehicleNode(playerPos()),
 						getClosestVehicleNode(playerPos() + getForwardVector(player) * DuelDistance, true)
 					);
-					challengePrompt->hide();
-					challengePrompt = new Prompt("Duel", GAMEPLAY::GET_HASH_KEY("INPUT_INTERACT_OPTION1"), PromptMode::Standard);
-					challengePrompt->hide();
+
+					UI::_0x00EDE88D4D13CF59(challengePrompt->handle); // remove old prompt
+					delete challengePrompt;
+					challengePrompt = 0;
 				}
 			}
-			else
+			else if (challengePrompt)
 			{
-				challengePrompt->hide();
+				UI::_0x00EDE88D4D13CF59(challengePrompt->handle); // remove old prompt
+				delete challengePrompt;
+				challengePrompt = 0;
 			}
+		}
+		else if (challengePrompt)
+		{
+			UI::_0x00EDE88D4D13CF59(challengePrompt->handle); // remove old prompt
+			delete challengePrompt;
+			challengePrompt = 0;
 		}
 	}
 	else
 	{
-		challengePrompt->hide();
+		if (challengePrompt)
+		{
+			UI::_0x00EDE88D4D13CF59(challengePrompt->handle); // remove old prompt
+			delete challengePrompt;
+			challengePrompt = 0;
+		}
+
 		duel->update();
 		if (!duel->isRunning())
 		{
@@ -161,7 +184,8 @@ bool DuelsEngine::hasAnimDictsLoaded()
 {
 	for (const char* animDict : animDicts)
 	{
-		if (!STREAMING::HAS_ANIM_DICT_LOADED((char*)animDict)) {
+		if (!STREAMING::HAS_ANIM_DICT_LOADED((char*)animDict)) 
+		{
 			return false;
 		}
 	}
