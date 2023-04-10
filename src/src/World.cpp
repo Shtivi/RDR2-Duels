@@ -3,7 +3,7 @@
 void getGroundPos(Vector3 originalPos, Vector3* outPos)
 {
 	float groundZ;
-	GAMEPLAY::GET_GROUND_Z_FOR_3D_COORD(originalPos.x, originalPos.y, originalPos.z, &groundZ, false);
+	MISC::GET_GROUND_Z_FOR_3D_COORD(originalPos.x, originalPos.y, originalPos.z, &groundZ, false);
 
 	outPos->x = originalPos.x;
 	outPos->y = originalPos.y;
@@ -15,12 +15,12 @@ float distanceBetweenEntities(Entity entity1, Entity entity2)
 	Vector3 pos1 = ENTITY::GET_ENTITY_COORDS(entity1, 1, 0);
 	Vector3 pos2 = ENTITY::GET_ENTITY_COORDS(entity2, 1, 0);
 
-	return GAMEPLAY::GET_DISTANCE_BETWEEN_COORDS(pos1.x, pos1.y, pos1.z, pos2.x, pos2.y, pos2.z, 1);
+	return MISC::GET_DISTANCE_BETWEEN_COORDS(pos1.x, pos1.y, pos1.z, pos2.x, pos2.y, pos2.z, 1);
 }
 
 Ped createPed(const char* modelName, Vector3 pos)
 {
-	Hash model = GAMEPLAY::GET_HASH_KEY((char*)modelName);
+	Hash model = MISC::GET_HASH_KEY((char*)modelName);
 	STREAMING::REQUEST_MODEL(model, false);
 	while (!STREAMING::HAS_MODEL_LOADED(model))
 	{
@@ -28,7 +28,7 @@ Ped createPed(const char* modelName, Vector3 pos)
 	}
 
 	Ped ped = PED::CREATE_PED(model, pos.x, pos.y, pos.z, 0, false, false, false, false);
-	PED::SET_PED_VISIBLE(ped, true);
+	PED::_SET_RANDOM_OUTFIT_VARIATION(ped, true);
 
 	return ped;
 }
@@ -42,7 +42,7 @@ Ped createPed(int model, Vector3 pos)
 	}
 
 	Ped ped = PED::CREATE_PED(model, pos.x, pos.y, pos.z, 0, false, false, false, false);
-	PED::SET_PED_VISIBLE(ped, true);
+	PED::_SET_RANDOM_OUTFIT_VARIATION(ped, true);
 
 	return ped;
 }
@@ -50,7 +50,7 @@ Ped createPed(int model, Vector3 pos)
 
 Ped createPed(const char* modelName, Vehicle vehicle, int seatIndex)
 {
-	Hash model = GAMEPLAY::GET_HASH_KEY((char*)modelName);
+	Hash model = MISC::GET_HASH_KEY((char*)modelName);
 	STREAMING::REQUEST_MODEL(model, false);
 	while (!STREAMING::HAS_MODEL_LOADED(model))
 	{
@@ -58,13 +58,13 @@ Ped createPed(const char* modelName, Vehicle vehicle, int seatIndex)
 	}
 
 	Ped ped = PED::CREATE_PED_INSIDE_VEHICLE(vehicle, model, seatIndex, 0, 0, 0);
-	PED::SET_PED_VISIBLE(ped, true);
+	PED::_SET_RANDOM_OUTFIT_VARIATION(ped, true);
 	return ped;
 }
 
 Object createProp(char* model, Vector3 position, float heading, bool isStatic, bool isVisible)
 {
-	Hash modelHash = GAMEPLAY::GET_HASH_KEY(model);
+	Hash modelHash = MISC::GET_HASH_KEY(model);
 
 	if (!STREAMING::HAS_MODEL_LOADED(modelHash))
 	{
@@ -91,13 +91,13 @@ Object createProp(char* model, Vector3 position, float heading, bool isStatic, b
 tm getGameTime()
 {
 	tm gameTime;
-	gameTime.tm_year = 70; // make problems only with years aroud 1970, not 1900.
-	gameTime.tm_mon = TIME::GET_CLOCK_MONTH();
-	gameTime.tm_mday = TIME::GET_CLOCK_DAY_OF_MONTH();
-	gameTime.tm_wday = TIME::GET_CLOCK_DAY_OF_WEEK();
-	gameTime.tm_hour = TIME::GET_CLOCK_HOURS();
-	gameTime.tm_min = TIME::GET_CLOCK_MINUTES();
-	gameTime.tm_sec = TIME::GET_CLOCK_SECONDS();
+	gameTime.tm_year = 70; // make problems only with years around 1970, not 1900.
+	gameTime.tm_mon = CLOCK::GET_CLOCK_MONTH();
+	gameTime.tm_mday = CLOCK::GET_CLOCK_DAY_OF_MONTH();
+	gameTime.tm_wday = CLOCK::GET_CLOCK_DAY_OF_WEEK();
+	gameTime.tm_hour = CLOCK::GET_CLOCK_HOURS();
+	gameTime.tm_min = CLOCK::GET_CLOCK_MINUTES();
+	gameTime.tm_sec = CLOCK::GET_CLOCK_SECONDS();
 
 	return gameTime;
 }
@@ -106,7 +106,7 @@ RaycastResult raycast(Vector3 source, Vector3 direction, float maxDist, RaycastI
 {
 	RaycastResult result;
 	Vector3 target = source + direction * maxDist;
-	int rayHandle = SHAPETEST::_START_SHAPE_TEST_RAY(source.x, source.y, source.z, target.x, target.y, target.z, intersectionOptions, ignore, 7);
+	int rayHandle = SHAPETEST::START_EXPENSIVE_SYNCHRONOUS_SHAPE_TEST_LOS_PROBE(source.x, source.y, source.z, target.x, target.y, target.z, intersectionOptions, ignore, 7);
 	SHAPETEST::GET_SHAPE_TEST_RESULT(rayHandle, (BOOL*)&result.didHit, &result.hitPos, &result.normal, &result.hitEntity);
 	return result;
 }
@@ -114,7 +114,7 @@ RaycastResult raycast(Vector3 source, Vector3 direction, float maxDist, RaycastI
 RaycastResult raycastCrosshair(float maxDist, RaycastIntersectionOptions intersectionOptions, Entity ignore)
 {
 	Vector3 source = CAM::GET_GAMEPLAY_CAM_COORD();
-	Vector3 rot = ((float)3.1452 / 180.0) * CAM::_GET_GAMEPLAY_CAM_ROT(2);
+	Vector3 rot = ((float)3.1452 / 180.0) * CAM::GET_FINAL_RENDERED_CAM_ROT(2);
 	Vector3 forward = normalOf(toVector3(
 		-sin(rot.z) * abs(cos(rot.x)),
 		cos(rot.z) * abs(cos(rot.x)),
@@ -133,7 +133,7 @@ RaycastResult shapeTestSphere(Vector3 source, Vector3 target, float radius, Rayc
 
 Ped findCarriedPedBy(Ped carrier)
 {
-	return PED::_0xD806CD2A4F2C2996(carrier);
+	return PED::_GET_FIRST_ENTITY_PED_IS_CARRYING(carrier);
 
 	//int nearbyEntities[5 * 2 + 2];
 	//Ped targetEntity = NULL;
@@ -161,7 +161,7 @@ void getGroundPos(Vector3* originalPos)
 Vector3 getGroundPos(Vector3 originalPos)
 {
 	float groundZ;
-	GAMEPLAY::GET_GROUND_Z_FOR_3D_COORD(originalPos.x, originalPos.y, originalPos.z, &groundZ, false);
+	MISC::GET_GROUND_Z_FOR_3D_COORD(originalPos.x, originalPos.y, originalPos.z, &groundZ, false);
 	return toVector3(originalPos.x, originalPos.y, groundZ);
 }
 
@@ -192,7 +192,7 @@ Vector3 playerPos()
 float getModelLength(Hash model)
 {
 	Vector3 front, back;
-	GAMEPLAY::GET_MODEL_DIMENSIONS(model, &front, &back);
+	MISC::GET_MODEL_DIMENSIONS(model, &front, &back);
 	float length = get_vector_length(front - back);
 	return length;
 }
@@ -210,7 +210,7 @@ Vehicle getClosestVehicle(Ped around)
 {
 	int nearbyEntities[5 * 2 + 2];
 	nearbyEntities[0] = 5;
-	int n = PED::GET_PED_NEARBY_VEHICLES(around, (int*)&nearbyEntities);
+	int n = PED::GET_PED_NEARBY_VEHICLES(around, (Any*)&nearbyEntities);
 
 	if (n == 0)
 	{
@@ -257,7 +257,7 @@ Ped findHogtiedTargetEntity()
 
 	if (ENTITY::IS_ENTITY_A_PED(targetEntity) &&
 		PED::IS_PED_HUMAN(targetEntity) &&
-		AI::GET_IS_TASK_ACTIVE(targetEntity, 400))
+		TASK::GET_IS_TASK_ACTIVE(targetEntity, 400))
 	{
 		return (Ped)targetEntity;
 	}
@@ -271,7 +271,7 @@ Ped getClosestPed(Ped around)
 	Ped targetEntity = NULL;
 
 	nearbyEntities[0] = 5;
-	int n = PED::GET_PED_NEARBY_PEDS(around, (int*)&nearbyEntities, -1, -1);
+	int n = PED::GET_PED_NEARBY_PEDS(around, (Any*)&nearbyEntities, -1, -1);
 
 	if (n == 0)
 	{
@@ -344,39 +344,39 @@ void playAnimation(Ped ped, const char* animName, const char* animDict, int dura
 		WAIT(25);
 	}
 
-	AI::TASK_PLAY_ANIM(ped, (char*)animDict, (char*)animName, blendInSpeed, blendOutSpeed, duration, flags, 0, 0, 0, 0, 0, 0);
+	TASK::TASK_PLAY_ANIM(ped, (char*)animDict, (char*)animName, blendInSpeed, blendOutSpeed, duration, flags, 0, 0, 0, 0, 0, 0);
 }
 
 void loadImap(Hash imapHash)
 {
-	if (!STREAMING::_0xD779B9B910BD3B7C(imapHash))
+	if (!STREAMING::IS_IPL_ACTIVE_HASH(imapHash))
 	{
-		STREAMING::_0x59767C5A7A9AE6DA(imapHash);
+		STREAMING::REQUEST_IPL_HASH(imapHash);
 	}
 }
 
 void loadInteriorSet(Interior interior, const char* setName)
 {
-	if (!INTERIOR::_IS_INTERIOR_PROP_ENABLED(interior, (char*) setName)) {
-		INTERIOR::_ENABLE_INTERIOR_PROP(interior, (char*) setName, 1);
+	if (!INTERIOR::IS_INTERIOR_ENTITY_SET_ACTIVE(interior, (char*) setName)) {
+		INTERIOR::ACTIVATE_INTERIOR_ENTITY_SET(interior, (char*) setName, 1);
 	}
 }
 
 MapAreas getMapArea(Vector3 pos)
 {
-	int town = ZONE::_0x43AD8FC02B429D33(pos.x, pos.y, pos.z, 1);
+	int town = ZONE::_GET_MAP_ZONE_AT_COORDS(pos.x, pos.y, pos.z, 1);
 	if (town) 
 	{
 		return (MapAreas)town;
 	}
 	else 
 	{
-		int district = ZONE::_0x43AD8FC02B429D33(pos.x, pos.y, pos.z, 10);
+		int district = ZONE::_GET_MAP_ZONE_AT_COORDS(pos.x, pos.y, pos.z, 10);
 		if (district) 
 		{
 			return (MapAreas)district;
 		}
-		return (MapAreas)ZONE::_0x43AD8FC02B429D33(pos.x, pos.y, pos.z, 11);
+		return (MapAreas)ZONE::_GET_MAP_ZONE_AT_COORDS(pos.x, pos.y, pos.z, 11);
 	}
 }
 
@@ -396,7 +396,7 @@ bool isPlayerUsingCampfire()
 	// fire camp: -1767895052
 	// fire camp: 1984305068
 
-	int playerScenarioPointType = (int)AI::_0x2D0571BB55879DA2(player); //  _GET_SCENARIO_POINT_TYPE_PED_IS_USING
+	int playerScenarioPointType = (int)TASK::_GET_SCENARIO_POINT_TYPE_PED_IS_USING(player);
 	return playerScenarioPointType == -1767895052 || playerScenarioPointType == 1020517461 || playerScenarioPointType == 1984305068;
 }
 
@@ -407,18 +407,18 @@ bool isPlayerResting()
 	// fire camp: 1984305068
 	// resting: -1241981548
 
-	int playerScenarioPointType = (int)AI::_0x2D0571BB55879DA2(player); //  _GET_SCENARIO_POINT_TYPE_PED_IS_USING
+	int playerScenarioPointType = (int)TASK::_GET_SCENARIO_POINT_TYPE_PED_IS_USING(player);
 	return playerScenarioPointType == -1241981548;
 }
 
 void setPlayerCoreValue(AttributeCores core, int value)
 {
-	ATTRIBUTE::_0xC6258F41D86676E0(player, (int)core, value);
+	ATTRIBUTE::_SET_ATTRIBUTE_CORE_VALUE(player, (int)core, value);
 }
 
 int getPlayerCoreValue(AttributeCores core)
 {
-	return ATTRIBUTE::_0x36731AC041289BB1(player, (int)core);
+	return ATTRIBUTE::_GET_ATTRIBUTE_CORE_VALUE(player, (int)core);
 }
 
 void addToPlayerCore(AttributeCores core, int amount)

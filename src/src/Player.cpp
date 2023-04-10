@@ -44,9 +44,9 @@ void makeHonorEffect(bool positive, bool big)
 			
 	Var0.f_3 = 0;
 	Var0.f_0 = 450;
-	const char* sParam0 = UI::_CREATE_VAR_STRING(2, positive ? "PLAYER_HONOR_CHANGE_POS" : "PLAYER_HONOR_CHANGE_NEG");
+	const char* sParam0 = MISC::VAR_STRING(2, positive ? "PLAYER_HONOR_CHANGE_POS" : "PLAYER_HONOR_CHANGE_NEG");
 	const char* sParam1 = "ITEMTYPE_TEXTURES";
-	int iParam2 = GAMEPLAY::GET_HASH_KEY(positive ? "TRANSACTION_HONOR_GOOD" : "TRANSACTION_HONOR_BAD");
+	int iParam2 = MISC::GET_HASH_KEY(positive ? "TRANSACTION_HONOR_GOOD" : "TRANSACTION_HONOR_BAD");
 
 	Var13.f_1 = sParam0;
 	Var13.f_2 = sParam1;
@@ -54,21 +54,21 @@ void makeHonorEffect(bool positive, bool big)
 	Var13.f_4 = 1;
 	Var13.f_5 = positive ? 109029619 : 859817522;
 	Var13.f_6 = 0;
-	UIUNK::_0xB249EBCB30DD88E0((Any*)&Var0, (Any*)&Var13, 1);
-	DUMMY2::_0x74BCCEB233AD95B2(-466562563, GAMEPLAY::GET_HASH_KEY((char*)sParam0));
-	DUMMY2::_0x74BCCEB233AD95B2(1885309238, GAMEPLAY::GET_HASH_KEY((char*)sParam1));
-	DUMMY2::_0x74BCCEB233AD95B2(-826961056, iParam2);
+	UIFEED::_UI_FEED_POST_SAMPLE_TOAST_RIGHT((Any*)&Var0, (Any*)&Var13, 1);
+	COMPAPP::_0x74BCCEB233AD95B2(-466562563, MISC::GET_HASH_KEY((char*)sParam0));
+	COMPAPP::_0x74BCCEB233AD95B2(1885309238, MISC::GET_HASH_KEY((char*)sParam1));
+	COMPAPP::_0x74BCCEB233AD95B2(-826961056, iParam2);
 }
 
 Ped getPlayerPrimaryHorse()
 {
-	return PLAYER::_0xB48050D326E9A2F3(PLAYER::PLAYER_ID());
+	return PLAYER::_GET_SADDLE_HORSE_FOR_PLAYER(PLAYER::PLAYER_ID());
 }
 
 void playerFleeHorse(Ped horse, bool quiet)
 {
 	if (!ENTITY::DOES_ENTITY_EXIST(horse) || 
-		!PED::_0x772A1969F649E902(ENTITY::GET_ENTITY_MODEL(horse)) /*_IS_THIS_MODEL_A_HORSE*/)
+		!PED::_IS_THIS_MODEL_A_HORSE(ENTITY::GET_ENTITY_MODEL(horse)))
 	{
 		return;
 	}
@@ -88,5 +88,5 @@ void playerFleeHorse(Ped horse, bool quiet)
 	}
 
 	playAmbientSpeech(player, (char*)speech);
-	AI::_0xFD45175A6DFD7CE9(horse, player, 3, 0, 25, 10000, 0);
+	TASK::TASK_FLEE_PED(horse, player, 3, 0, 25, 10000, 0);
 }

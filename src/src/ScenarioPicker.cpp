@@ -15,8 +15,8 @@ float MenuY = 0.5 - MenuHeight / 2;
 ScenarioPicker::ScenarioPicker()
 {
 	_isOpen = false;
-	selectPrompt = new Prompt("Select", GAMEPLAY::GET_HASH_KEY("INPUT_FRONTEND_ACCEPT"));
-	cancelPrompt = new Prompt("Cancel", GAMEPLAY::GET_HASH_KEY("INPUT_FRONTEND_CANCEL"));
+	selectPrompt = new Prompt("Select", MISC::GET_HASH_KEY("INPUT_FRONTEND_ACCEPT"));
+	cancelPrompt = new Prompt("Cancel", MISC::GET_HASH_KEY("INPUT_FRONTEND_CANCEL"));
 	currentItem = 0;
 	selection = NULL;
 	_hasSelection = false;
@@ -49,7 +49,7 @@ void ScenarioPicker::open()
 	selection = NULL;
 	_hasSelection = false;
 	currentItem = 0;
-	//GAMEPLAY::SET_TIME_SCALE(0);
+	//MISC::SET_TIME_SCALE(0);
 	//GRAPHICS::ANIMPOSTFX_PLAY("MissionChoice");
 }
 
@@ -68,7 +68,7 @@ void ScenarioPicker::close()
 {
 	_hasSelection = true;
 	_isOpen = false;
-	//GAMEPLAY::SET_TIME_SCALE(1);
+	//MISC::SET_TIME_SCALE(1);
 	//GRAPHICS::ANIMPOSTFX_STOP("MissionChoice");
 }
 

@@ -48,7 +48,7 @@ Ped createAmbientHorse(Vector3 pos)
 
 Ped createPed(char* modelName, Vector3 pos, float heading)
 {
-	Hash model = GAMEPLAY::GET_HASH_KEY(modelName);
+	Hash model = MISC::GET_HASH_KEY(modelName);
 	STREAMING::REQUEST_MODEL(model, false);
 	while (!STREAMING::HAS_MODEL_LOADED(model))
 	{
@@ -56,14 +56,14 @@ Ped createPed(char* modelName, Vector3 pos, float heading)
 	}
 
 	Ped ped = PED::CREATE_PED(model, pos.x, pos.y, pos.z, heading, false, false, false, false);
-	PED::SET_PED_VISIBLE(ped, true);
+	PED::_SET_RANDOM_OUTFIT_VARIATION(ped, true);
 
 	return ped;
 }
 
 Ped createPedOnHorse(char* modelName, Ped horse, int seatIndex)
 {
-	Hash model = GAMEPLAY::GET_HASH_KEY(modelName);
+	Hash model = MISC::GET_HASH_KEY(modelName);
 	STREAMING::REQUEST_MODEL(model, false);
 	while (!STREAMING::HAS_MODEL_LOADED(model))
 	{
@@ -71,15 +71,15 @@ Ped createPedOnHorse(char* modelName, Ped horse, int seatIndex)
 		WAIT(10);
 	}
 
-	Ped ped = PED::_0xF89AA2BD01FC06B7(horse, model, seatIndex, 1, 1, 0, 0);
+	Ped ped = PED::CREATE_PED_ON_MOUNT(horse, model, seatIndex, 1, 1, 0, 0);
 
-	PED::SET_PED_VISIBLE(ped, true);
+	PED::_SET_RANDOM_OUTFIT_VARIATION(ped, true);
 	return ped;
 }
 
 bool isPedHogtied(Ped ped)
 {
-	return AI::GET_IS_TASK_ACTIVE(ped, 400);
+	return TASK::GET_IS_TASK_ACTIVE(ped, 400);
 }
 
 void playAmbientSpeech(Ped ped, char* speechName, char* voice)
@@ -98,7 +98,7 @@ void playAmbientSpeech(Ped ped, char* speechName, char* voice)
 
 void giveSaddleToHorse(Ped horse, HorseSaddleHashes saddleHash)
 {
-	PED::_0xD3A7B003ED343FD9(horse, (Hash)saddleHash, true, false, false); 
+	PED::_APPLY_SHOP_ITEM_TO_PED(horse, (Hash)saddleHash, true, false, false); 
 }
 
 vector<Ped>* getPedGroupMembers(Group group)
@@ -111,7 +111,7 @@ vector<Ped>* getPedGroupMembers(Group group)
 	{
 		vector<Ped>* results = new vector<Ped>;
 		int count, val1;
-		PED::GET_GROUP_SIZE(group, (Any*)&val1, &count);
+		PED::GET_GROUP_SIZE(group, &val1, &count);
 
 		for (int i = 0; i < count; i++)
 		{
@@ -122,7 +122,7 @@ vector<Ped>* getPedGroupMembers(Group group)
 			}
 		}
 
-		Ped leader = PED::_GET_PED_AS_GROUP_LEADER(group);
+		Ped leader = PED::GET_PED_AS_GROUP_LEADER(group);
 		if (ENTITY::DOES_ENTITY_EXIST(leader))
 		{
 			results->push_back(leader);
@@ -143,7 +143,7 @@ vector<Ped> getNearbyPeds(Ped origin, int limit, float radius)
 	vector<Ped> asVector;
 
 	results[0] = limit;
-	total = PED::GET_PED_NEARBY_PEDS(origin, results, -1, 0);
+	total = PED::GET_PED_NEARBY_PEDS(origin, (Any*)results, -1, 0);
 
 	for (int i = 0; i < total; i++)
 	{
@@ -222,17 +222,17 @@ Object findUnoccupiedObjectAround(Vector3 location, float maxDistance, vector<in
 void playSeatedScenario(Ped ped, Object object, const char* scenarioType, float heading)
 {
 	Vector3 objectPos = entityPos(object);
-	int scenarioPoint = AI::_0x794AB1379A74064D(object, GAMEPLAY::GET_HASH_KEY((char*)scenarioType), 0, 0, 0.5f, heading, 0, -1, 1); // TASK_CREATE_SCENARIO_POINT_ATTACHED_TO_ENTITY
-	AI::_0x5AF19B6CC2115D34(scenarioPoint, 23, 1);
+	int scenarioPoint = TASK::CREATE_SCENARIO_POINT_HASH_ATTACHED_TO_ENTITY(object, MISC::GET_HASH_KEY((char*)scenarioType), 0, 0, 0.5f, heading, 0, -1, 1); // TASK_CREATE_SCENARIO_POINT_ATTACHED_TO_ENTITY
+	TASK::_SET_SCENARIO_POINT_FLAG(scenarioPoint, 23, 1);
 	PED::ADD_SCENARIO_BLOCKING_AREA(objectPos.x - 0.75, objectPos.y - 0.75, objectPos.z - 0.75, objectPos.x + 0.75, objectPos.y + 0.75, objectPos.z + 0.75, false, 15);
-	AI::_0xCCDAE6324B6A821C(ped, scenarioPoint, 0, -1, 0, 1, 0, 0, -1082130432, 0);
+	TASK::TASK_USE_SCENARIO_POINT(ped, scenarioPoint, 0, -1, 0, 1, 0, 0, -1082130432, 0);
 }
 
 int findUnoccupiedScenarioPointAround(Vector3 source, float radius)
 {
 	int arrSize = 15;
 	int scenarios[100];
-	int count = AI::_0x345EC3B7EBDE1CB5(source.x, source.y, source.z, radius, (Any*)scenarios, arrSize);
+	int count = TASK::GET_SCENARIO_POINTS_IN_AREA(source.x, source.y, source.z, radius, (Any*)scenarios, arrSize);
 	
 	if (!count) {
 		return -1;
@@ -243,18 +243,18 @@ int findUnoccupiedScenarioPointAround(Vector3 source, float radius)
 	for (int i = 0; i < count; i++)
 	{
 		int scenario = scenarios[i];
-		if (!AI::_0x841475AC96E794D1(scenario) /*_DOES_SCENARIO_POINT_EXIST*/)
+		if (!TASK::DOES_SCENARIO_POINT_EXIST(scenario))
 		{
 			continue;
 		}
 
-		Ped pedUsingScenario = AI::_0x5BA659955369B0E2(scenario); // _GET_PED_USING_SCENARIO_POINT
+		Ped pedUsingScenario = TASK::_GET_PED_USING_SCENARIO_POINT(scenario);
 		if (pedUsingScenario)
 		{
 			continue;
 		}
 
-		Vector3 scenarioCoords = AI::_0xA8452DD321607029(scenario, 1);
+		Vector3 scenarioCoords = TASK::_GET_SCENARIO_POINT_COORDS(scenario, 1);
 		float scenarioDistance = distance(scenarioCoords, source);
 		if (scenarioDistance < bestDistance)
 		{
@@ -268,7 +268,7 @@ int findUnoccupiedScenarioPointAround(Vector3 source, float radius)
 
 bool isPedCop(Ped ped)
 {
-	return PED::GET_PED_RELATIONSHIP_GROUP_HASH(ped) == GAMEPLAY::GET_HASH_KEY("REL_COP");
+	return PED::GET_PED_RELATIONSHIP_GROUP_HASH(ped) == MISC::GET_HASH_KEY("REL_COP");
 }
 
 bool isPedLawman(Ped ped)
