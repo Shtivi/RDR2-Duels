@@ -24,7 +24,7 @@ bool isPedDuelable(Ped ped)
 		return false;
 	}
 
-	if (!ScriptSettings::getBool("ChallengeGangMembers") && PED::GET_PED_RELATIONSHIP_GROUP_HASH(ped) == GAMEPLAY::GET_HASH_KEY("REL_GANG_DUTCHS"))
+	if (!ScriptSettings::getBool("ChallengeGangMembers") && PED::GET_PED_RELATIONSHIP_GROUP_HASH(ped) == MISC::GET_HASH_KEY("REL_GANG_DUTCHS"))
 	{
 		return false;
 	}
@@ -35,13 +35,13 @@ bool isPedDuelable(Ped ped)
 		!PED::IS_PED_IN_ANY_TRAIN(ped) &&
 		!PED::IS_PED_IN_COMBAT(ped, player) &&
 		doesPedHaveSidearm(ped) &&
-		!AI::IS_PED_RUNNING(ped) &&
-		!AI::IS_PED_SPRINTING(ped) &&
+		!TASK::IS_PED_RUNNING(ped) &&
+		!TASK::IS_PED_SPRINTING(ped) &&
 		!PED::IS_PED_FLEEING(ped) &&
-		!AI::IS_PED_CUFFED(ped) &&
+		!TASK::IS_PED_CUFFED(ped) &&
 		DECORATOR::DECOR_GET_INT(ped, "SH_DUELS_dueled") != 1 &&
 		!PED::IS_PED_IN_MELEE_COMBAT(ped) &&
-		!PED::_0x3AA24CCC0D451379(ped)/* IS_PED_HOGTIED */;
+		!PED::IS_PED_HOGTIED(ped);
 
 	if (isPedLawman(ped) && !ScriptSettings::getBool("DuelLawmen"))
 	{
@@ -59,7 +59,7 @@ DuelsEngine::DuelsEngine()
 
 void DuelsEngine::update()
 {
-	if (GAMEPLAY::GET_MISSION_FLAG())
+	if (MISC::GET_MISSION_FLAG())
 	{
 		return;
 	}
@@ -74,13 +74,13 @@ void DuelsEngine::update()
 		{
 			if (!challengePrompt)
 			{
-				challengePrompt = new Prompt("Duel", GAMEPLAY::GET_HASH_KEY("INPUT_INTERACT_OPTION1"), PromptMode::Standard);
+				challengePrompt = new Prompt("Duel", MISC::GET_HASH_KEY("INPUT_INTERACT_OPTION1"), PromptMode::Standard);
 			}
 			
 			challengePrompt->hide();
 			challengePrompt->setTargetEntity(targetEntity);
 
-			if (DECISIONEVENT::IS_SHOCKING_EVENT_IN_SPHERE(0x73221D75 /* EVENT_SHOCKING_SEEN_INSULT */, playerCoords.x, playerCoords.y, playerCoords.z, 10))
+			if (EVENT::IS_SHOCKING_EVENT_IN_SPHERE(0x73221D75 /* EVENT_SHOCKING_SEEN_INSULT */, playerCoords.x, playerCoords.y, playerCoords.z, 10))
 			{
 				DECORATOR::DECOR_SET_INT(targetEntity, "SH_DUELS_duelable", 1);
 				log("antagonized");
@@ -101,21 +101,21 @@ void DuelsEngine::update()
 						getClosestVehicleNode(playerPos() + getForwardVector(player) * DuelDistance, true)
 					);
 
-					UI::_0x00EDE88D4D13CF59(challengePrompt->handle); // remove old prompt
+					HUD::_UI_PROMPT_DELETE(challengePrompt->handle); // remove old prompt
 					delete challengePrompt;
 					challengePrompt = 0;
 				}
 			}
 			else if (challengePrompt)
 			{
-				UI::_0x00EDE88D4D13CF59(challengePrompt->handle); // remove old prompt
+				HUD::_UI_PROMPT_DELETE(challengePrompt->handle); // remove old prompt
 				delete challengePrompt;
 				challengePrompt = 0;
 			}
 		}
 		else if (challengePrompt)
 		{
-			UI::_0x00EDE88D4D13CF59(challengePrompt->handle); // remove old prompt
+			HUD::_UI_PROMPT_DELETE(challengePrompt->handle); // remove old prompt
 			delete challengePrompt;
 			challengePrompt = 0;
 		}
@@ -124,7 +124,7 @@ void DuelsEngine::update()
 	{
 		if (challengePrompt)
 		{
-			UI::_0x00EDE88D4D13CF59(challengePrompt->handle); // remove old prompt
+			HUD::_UI_PROMPT_DELETE(challengePrompt->handle); // remove old prompt
 			delete challengePrompt;
 			challengePrompt = 0;
 		}

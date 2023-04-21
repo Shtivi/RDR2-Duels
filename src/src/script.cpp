@@ -83,34 +83,30 @@ void main()
 			}
 		}
 
-
 		if (debugOn)
 		{
-			//PURSUIT::_0xDE5FAA741A781F73(PLAYER::GET_PLAYER_INDEX(), 1);
+			//LAW::SET_DISABLE_DISTURBANCE_CRIMES(PLAYER::GET_PLAYER_INDEX(), 1);
 
-
-			Player playerId = PLAYER::PLAYER_ID();
-			PLAYER::SET_ALL_RANDOM_PEDS_FLEE((Player*)player, false);
-			int n = SCRIPT::GET_NUMBER_OF_EVENTS(0);
+			PLAYER::SET_ALL_RANDOM_PEDS_FLEE(player, false);
+			int n = SCRIPTS::GET_NUMBER_OF_EVENTS(0);
 			for (int i = 0; i < n; i++)
 			{
-				int eventType = SCRIPT::GET_EVENT_AT_INDEX(0, i);
-				if (eventType == GAMEPLAY::GET_HASH_KEY("EVENT_PLAYER_COLLECTED_AMBIENT_PICKUP"))
+				int eventType = SCRIPTS::GET_EVENT_AT_INDEX(0, i);
+				if (eventType == MISC::GET_HASH_KEY("EVENT_PLAYER_COLLECTED_AMBIENT_PICKUP"))
 				{
 					int eventSize = 36;
 					int arr[10];
-					SCRIPT::GET_EVENT_DATA(0, i, arr, eventSize);
+					SCRIPTS::GET_EVENT_DATA(0, i, (Any*)arr, eventSize);
 					showSubtitle(to_string(arr[0]).c_str());
 
 				}
-
 			}
 
 			Vector3 pos = playerPos();
 
 			Hash weaponHash;
 			WEAPON::GET_CURRENT_PED_WEAPON(player, &weaponHash, 0, 0, 0);
-			if (weaponHash != GAMEPLAY::GET_HASH_KEY("WEAPON_UNARMED")) {
+			if (weaponHash != MISC::GET_HASH_KEY("WEAPON_UNARMED")) {
 				Entity e;
 				if (PLAYER::GET_ENTITY_PLAYER_IS_FREE_AIMING_AT(PLAYER::PLAYER_ID(), &e) /*&& distanceBetweenEntities(player, e) < 20*/) {
 					if (IsKeyJustUp(VK_KEY_Z)) {
@@ -131,9 +127,9 @@ void main()
 					//	PED::GET_PED_RELATIONSHIP_GROUP_HASH(player),
 					//	PED::GET_PED_RELATIONSHIP_GROUP_HASH(targetEntity)
 					//));
-					//debug(PED::GET_PED_RELATIONSHIP_GROUP_HASH(targetEntity) == GAMEPLAY::GET_HASH_KEY("REL_GANG_DUTCHS"));
+					//debug(PED::GET_PED_RELATIONSHIP_GROUP_HASH(targetEntity) == MISC::GET_HASH_KEY("REL_GANG_DUTCHS"));
 					if (IsKeyJustUp(VK_KEY_Z)) {
-						PED::_0xCB9401F918CB0F75(targetEntity, (Any*)"NarrowLedge", true, 1000);
+						PED::_SET_PED_BLACKBOARD_BOOL(targetEntity, "NarrowLedge", true, 1000);
 					}
 
 				}
@@ -149,11 +145,11 @@ void main()
 			}
 
 
-				PURSUIT::CLEAR_CURRENT_PURSUIT();
+				LAW::_SET_BOUNTY_HUNTER_PURSUIT_CLEARED();
 
 			if (IsKeyJustUp(VK_KEY_X))
 			{
-				AI::_0xFD45175A6DFD7CE9(PLAYER::_0xB48050D326E9A2F3(PLAYER::PLAYER_ID()), player, 3, 0, 25, 10000, 0);
+				TASK::TASK_FLEE_PED(PLAYER::_GET_SADDLE_HORSE_FOR_PLAYER(PLAYER::PLAYER_ID()), player, 3, 0, 25, 10000, 0);
 			}
 
 			if (IsKeyJustUp(VK_F1))
@@ -174,7 +170,7 @@ void main()
 				//Ped horse = createAmbientHorse(playerPos() + getForwardVector(player) * 5);
 				//Ped ped = createPedOnHorse("a_m_m_bivroughtravellers_01", horse, -1);
 				//WAIT(2000);
-				//AI::_0x48E92D3DDE23C23A(ped, 0, 0, 0, 0, 0);
+				//TASK::TASK_DISMOUNT_ANIMAL(ped, 0, 0, 0, 0, 0);
 				//ENTITY::SET_ENTITY_AS_NO_LONGER_NEEDED(&ped);
 
 				Vehicle veh = createVehicle(VehicleHash::Utilliwag, playerPos() + getForwardVector(player) * 10);
@@ -188,7 +184,7 @@ void main()
 			{
 				Ped ped = createPed("a_m_m_bivroughtravellers_01", playerPos() + getForwardVector(player) * 5);
 				//PED::_0xA762C9D6CF165E0D(ped, (Any*)"MoodName", (Any*)"MoodBrave", -1);
-				PED::_0xCB9401F918CB0F75(ped, (Any*)"HandsOnBelt", true, -1);
+				PED::_SET_PED_BLACKBOARD_BOOL(ped, "HandsOnBelt", true, -1);
 				ENTITY::SET_ENTITY_AS_NO_LONGER_NEEDED(&ped);
 			}
 
@@ -216,7 +212,7 @@ void ScriptMain()
 }
 
 void debug(const char* text) {
-	UI::DRAW_TEXT((char*)UI::_CREATE_VAR_STRING(10, "LITERAL_STRING", text), 0, 0);
+	HUD::_DISPLAY_TEXT(MISC::VAR_STRING(10, "LITERAL_STRING", text), 0, 0);
 }
 
 void debug(string text) {
@@ -245,7 +241,7 @@ void logPlayerPos()
 {
 	Vector3 playerPos = entityPos(player);
 	float ground;
-	GAMEPLAY::GET_GROUND_Z_FOR_3D_COORD(playerPos.x, playerPos.y, playerPos.z, &ground, false);
+	MISC::GET_GROUND_Z_FOR_3D_COORD(playerPos.x, playerPos.y, playerPos.z, &ground, false);
 	std::stringstream output;
 	output << "\n"
 		<< playerPos.x << ", " << playerPos.y << ", " << playerPos.z << "\n"
